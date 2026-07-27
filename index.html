@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Note & Data Summarizer Automation</title>
+    <!-- Modern Typography: Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-theme">
+    <div class="app-background">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+        <div class="glow-orb orb-3"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Top Navigation / Header -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-brain"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>Summarize<span class="highlight">AI</span> <span class="badge-pro">STUDENT PRO</span></h1>
+                    <p>Condense massive notes, chapters & data into crisp 2-3 paragraph summaries</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="sample-loader-dropdown">
+                    <button class="btn btn-secondary dropdown-trigger" id="sampleDropdownBtn">
+                        <i class="fa-solid fa-folder-open"></i> Load Preset Notes <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-menu" id="sampleDropdownMenu">
+                        <button class="dropdown-item" onclick="loadPreset('biology')">
+                            <i class="fa-solid fa-dna"></i> Biology: Cellular Respiration
+                        </button>
+                        <button class="dropdown-item" onclick="loadPreset('history')">
+                            <i class="fa-solid fa-landmark"></i> History: The Industrial Revolution
+                        </button>
+                        <button class="dropdown-item" onclick="loadPreset('cs')">
+                            <i class="fa-solid fa-code"></i> CS: Data Structures & Algorithms
+                        </button>
+                    </div>
+                </div>
+
+                <button class="btn btn-secondary" id="openLibraryBtn">
+                    <i class="fa-solid fa-bookmark"></i> Saved Library (<span id="savedCount">0</span>)
+                </button>
+                <button class="btn btn-secondary" id="apiConfigBtn" title="Configure AI API Key">
+                    <i class="fa-solid fa-key"></i> <span id="apiStatusBadge">Offline Engine</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Workspace Grid -->
+        <main class="workspace-grid">
+            <!-- Left Column: Source Note Input -->
+            <section class="panel panel-input">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-file-pen"></i> Source Notes & Data Input</h2>
+                    <button class="btn-text" id="clearTextBtn" title="Clear Text">
+                        <i class="fa-solid fa-trash-can"></i> Clear
+                    </button>
+                </div>
+
+                <!-- Drag & Drop Zone -->
+                <div class="drop-zone" id="dropZone">
+                    <input type="file" id="fileInput" accept=".txt,.pdf,.md,.docx,.doc" class="file-input">
+                    <div class="drop-zone-content">
+                        <div class="upload-icon">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                        </div>
+                        <p class="drop-title">Drag & drop your notes file here</p>
+                        <p class="drop-subtitle">Supports <span>.TXT</span>, <span>.PDF</span>, <span>.MD</span>, <span>.DOCX</span> documents</p>
+                    </div>
+                    <div class="file-preview-info" id="filePreviewInfo" style="display: none;">
+                        <i class="fa-solid fa-file-lines"></i>
+                        <span id="fileName">notes.txt</span>
+                        <span id="fileSize" class="file-size-badge">12 KB</span>
+                        <button class="btn-icon" id="removeFileBtn"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>
+
+                <!-- Text Area Input -->
+                <div class="textarea-wrapper">
+                    <textarea id="sourceText" placeholder="Paste your lecture notes, textbook chapters, research papers, or large raw data here..."></textarea>
+                    <div class="textarea-footer">
+                        <span class="stat-tag"><i class="fa-solid fa-font"></i> <strong id="inputWordCount">0</strong> words</span>
+                        <span class="stat-tag"><i class="fa-solid fa-text-height"></i> <strong id="inputCharCount">0</strong> chars</span>
+                        <span class="stat-tag"><i class="fa-solid fa-clock"></i> ~<strong id="inputReadTime">0</strong> min read</span>
+                    </div>
+                </div>
+
+                <!-- Controls & Summarization Options -->
+                <div class="control-card">
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label><i class="fa-solid fa-compress"></i> Summary Length Target:</label>
+                            <div class="segmented-control" id="lengthSegmentedControl">
+                                <button class="segment-btn active" data-value="2-3">2-3 Paragraphs</button>
+                                <button class="segment-btn" data-value="1">1 Paragraph</button>
+                                <button class="segment-btn" data-value="4-5">4-5 Paragraphs</button>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label><i class="fa-solid fa-sliders"></i> Output Format:</label>
+                            <select id="outputFormatSelect" class="styled-select">
+                                <option value="paragraphs" selected>Structured Paragraphs</option>
+                                <option value="bullets">Key Bullet Points</option>
+                                <option value="flashcards">Study Q&A Flashcards</option>
+                                <option value="executive">Executive Summary Brief</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label><i class="fa-solid fa-microchip"></i> Engine Mode:</label>
+                            <div class="toggle-switch-wrapper">
+                                <label class="switch">
+                                    <input type="checkbox" id="engineToggle">
+                                    <span class="slider round"></span>
+                                </label>
+                                <span id="engineLabel">Offline Smart NLP</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Summarize Action Button -->
+                    <button class="btn btn-primary btn-generate" id="summarizeBtn">
+                        <span class="btn-text-wrap">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Summarize to 2-3 Paragraphs
+                        </span>
+                        <div class="spinner" id="btnSpinner" style="display: none;"></div>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Right Column: Summary Output & Dashboard -->
+            <section class="panel panel-output">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-square-poll-vertical"></i> Summary Dashboard</h2>
+                    <div class="output-tabs" id="outputTabs">
+                        <button class="tab-btn active" data-tab="summaryTab"><i class="fa-solid fa-align-left"></i> Summary</button>
+                        <button class="tab-btn" data-tab="bulletsTab"><i class="fa-solid fa-list-check"></i> Key Takeaways</button>
+                        <button class="tab-btn" data-tab="flashcardsTab"><i class="fa-solid fa-layer-group"></i> Flashcards (<span id="flashcardCountBadge">0</span>)</button>
+                        <button class="tab-btn" data-tab="audioTab"><i class="fa-solid fa-volume-high"></i> Audio Reader</button>
+                    </div>
+                </div>
+
+                <!-- Compression Stats Analytics Bar -->
+                <div class="metrics-bar" id="metricsBar">
+                    <div class="metric-card">
+                        <span class="metric-label">Original</span>
+                        <span class="metric-value" id="originalMetric">0 words</span>
+                    </div>
+                    <div class="metric-divider"><i class="fa-solid fa-arrow-right"></i></div>
+                    <div class="metric-card">
+                        <span class="metric-label">Summarized</span>
+                        <span class="metric-value highlight-green" id="summaryMetric">0 words</span>
+                    </div>
+                    <div class="metric-card metric-pill">
+                        <div class="progress-circle-small" id="reductionCircle">
+                            <span id="reductionPercent">0%</span>
+                        </div>
+                        <span class="metric-sublabel">Data Reduced</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Time Saved</span>
+                        <span class="metric-value highlight-purple" id="timeSavedMetric">0 mins</span>
+                    </div>
+                </div>
+
+                <!-- Tab Content 1: 2-3 Paragraph Summary View -->
+                <div class="tab-content active" id="summaryTab">
+                    <div class="output-box" id="outputSummaryBox">
+                        <div class="empty-state" id="emptyState">
+                            <div class="empty-icon"><i class="fa-solid fa-feather-pointed"></i></div>
+                            <h3>Ready to Condense Your Notes</h3>
+                            <p>Paste notes on the left or drag a file to generate a crisp 2 to 3 paragraph summary, bullet highlights, and study flashcards.</p>
+                        </div>
+                        <div class="summary-paragraphs-wrapper" id="summaryParagraphsWrapper" style="display: none;">
+                            <!-- Dynamic Paragraph Cards injected here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Content 2: Key Bullet Points -->
+                <div class="tab-content" id="bulletsTab">
+                    <div class="output-box">
+                        <ul class="bullets-list" id="bulletsList">
+                            <li class="empty-hint">Generate a summary first to extract key study takeaways.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Tab Content 3: Flashcards View -->
+                <div class="tab-content" id="flashcardsTab">
+                    <div class="flashcards-container">
+                        <div class="flashcard-deck-controls">
+                            <button class="btn btn-secondary btn-sm" id="prevCardBtn" disabled><i class="fa-solid fa-chevron-left"></i> Prev</button>
+                            <span class="deck-counter" id="deckCounter">Card 0 of 0</span>
+                            <button class="btn btn-secondary btn-sm" id="nextCardBtn" disabled>Next <i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                        <div class="flashcard-scene" id="flashcardScene">
+                            <div class="flashcard" id="activeFlashcard">
+                                <div class="flashcard-face flashcard-front">
+                                    <span class="card-badge">QUESTION / TERM</span>
+                                    <p id="cardFrontText">Generate notes to unlock interactive flashcards.</p>
+                                    <span class="flip-hint"><i class="fa-solid fa-rotate"></i> Click card to flip</span>
+                                </div>
+                                <div class="flashcard-face flashcard-back">
+                                    <span class="card-badge badge-answer">EXPLANATION / ANSWER</span>
+                                    <p id="cardBackText">The key answer and breakdown will appear here.</p>
+                                    <span class="flip-hint"><i class="fa-solid fa-rotate"></i> Click card to flip back</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Content 4: Audio Text-to-Speech Player -->
+                <div class="tab-content" id="audioTab">
+                    <div class="audio-player-card">
+                        <div class="audio-header">
+                            <div class="audio-waves">
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                            </div>
+                            <h3>Listen to 2-3 Para Summary</h3>
+                        </div>
+
+                        <div class="audio-controls">
+                            <button class="btn btn-primary btn-round" id="playAudioBtn" title="Play / Pause Audio">
+                                <i class="fa-solid fa-play" id="playIcon"></i>
+                            </button>
+                            <button class="btn btn-secondary btn-round" id="stopAudioBtn" title="Stop Audio">
+                                <i class="fa-solid fa-square"></i>
+                            </button>
+
+                            <div class="audio-settings">
+                                <div class="audio-setting-item">
+                                    <label><i class="fa-solid fa-gauge-high"></i> Speed:</label>
+                                    <select id="voiceSpeed" class="styled-select select-sm">
+                                        <option value="0.8">0.8x</option>
+                                        <option value="1" selected>1.0x (Normal)</option>
+                                        <option value="1.25">1.25x (Fast)</option>
+                                        <option value="1.5">1.5x (Speed Read)</option>
+                                    </select>
+                                </div>
+                                <div class="audio-setting-item">
+                                    <label><i class="fa-solid fa-user-astronaut"></i> Voice:</label>
+                                    <select id="voiceSelect" class="styled-select select-sm">
+                                        <option value="">Default Browser Voice</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="audio-status-text" id="audioStatusText">Ready to read summary aloud.</div>
+                    </div>
+                </div>
+
+                <!-- Export & Action Toolbar -->
+                <div class="export-toolbar">
+                    <div class="toolbar-group">
+                        <button class="btn btn-secondary btn-sm" id="copySummaryBtn" title="Copy to Clipboard">
+                            <i class="fa-solid fa-copy"></i> Copy
+                        </button>
+                        <button class="btn btn-secondary btn-sm" id="saveNoteBtn" title="Save to Local Library">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Note
+                        </button>
+                    </div>
+
+                    <div class="toolbar-group">
+                        <button class="btn btn-outline btn-sm" id="exportPdfBtn">
+                            <i class="fa-solid fa-file-pdf"></i> Export PDF
+                        </button>
+                        <button class="btn btn-outline btn-sm" id="exportMDBtn">
+                            <i class="fa-solid fa-file-code"></i> Export MD
+                        </button>
+                        <button class="btn btn-outline btn-sm" id="exportTxtBtn">
+                            <i class="fa-solid fa-file-lines"></i> Export TXT
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Saved Library Drawer Modal -->
+        <div class="modal-overlay" id="libraryModal">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <h3><i class="fa-solid fa-box-archive"></i> Saved Study Summaries</h3>
+                    <button class="btn-icon" id="closeLibraryBtn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="library-search-bar">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="librarySearchInput" placeholder="Search saved notes by title or content...">
+                    </div>
+                    <div class="library-list" id="libraryList">
+                        <!-- Dynamic saved items injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Config Modal -->
+        <div class="modal-overlay" id="apiModal">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <h3><i class="fa-solid fa-sliders"></i> AI Summarization Engine Settings</h3>
+                    <button class="btn-icon" id="closeApiBtn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-desc">
+                        By default, SummarizeAI uses a high-performance <strong>Built-in Offline NLP Engine</strong> (TextRank + TF-IDF) requiring 0 setup or internet connection.
+                    </p>
+                    <p class="modal-desc">
+                        Optionally enter a <strong>Gemini API Key</strong> below to unlock deep LLM abstractive summarization.
+                    </p>
+                    <div class="form-group">
+                        <label for="geminiApiKey">Google Gemini API Key:</label>
+                        <input type="password" id="geminiApiKey" placeholder="AIzaSy..." class="styled-input">
+                        <small class="help-text">Keys are stored locally in your browser session only.</small>
+                    </div>
+                    <div class="modal-footer-actions">
+                        <button class="btn btn-secondary" id="clearApiKeyBtn">Clear Key</button>
+                        <button class="btn btn-primary" id="saveApiKeyBtn">Save Settings</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification Container -->
+        <div class="toast-container" id="toastContainer"></div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="app.js"></script>
+</body>
+</html>

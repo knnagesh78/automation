@@ -1,0 +1,20 @@
+{
+  "name": "student-note-data-summarizer-automation",
+  "version": "1.0.0",
+  "description": "Student Note & Large Data Summarizer Automation into concise 2-3 paragraph summaries, bullet takeaways, and flashcards.",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx -y http-server ./ -p 3000 -o"
+  },
+  "keywords": [
+    "summarizer",
+    "student-notes",
+    "ai",
+    "nlp",
+    "education",
+    "textrank",
+    "flashcards"
+  ],
+  "author": "Antigravity AI Team",
+  "license": "MIT"
+}
