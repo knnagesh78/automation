@@ -1,6 +1,38 @@
-/* ==========================================================================
-   STUDENT NOTE & DATA SUMMARIZER - APPLICATION ENGINE LOGIC
-   ========================================================================== */
+// --- Firebase Integration ---
+const firebaseConfig = {
+  apiKey: "AIzaSyBZluCXp8g7ps3pGaNF_0Wql2SZXPS716s",
+  authDomain: "automation-4ad46.firebaseapp.com",
+  databaseURL: "https://automation-4ad46-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "automation-4ad46",
+  storageBucket: "automation-4ad46.firebasestorage.app",
+  messagingSenderId: "602849349563",
+  appId: "1:602849349563:web:8ce37758a46e7dc660fe9e",
+  measurementId: "G-ZV2EN94EGL"
+};
+
+// Initialize Firebase using compat SDK safely
+let database = null;
+let analytics = null;
+
+if (typeof firebase !== 'undefined') {
+    try {
+        firebase.initializeApp(firebaseConfig);
+        database = firebase.database();
+        analytics = firebase.analytics();
+        console.log('[Firebase] Successfully initialized.');
+    } catch (e) {
+        console.error('[Firebase] Initialization error:', e);
+    }
+} else {
+    console.warn('[Firebase] SDK scripts did not load. Running in local-only fallback mode.');
+}
+
+// Generate or retrieve a persistent unique client ID
+let clientId = localStorage.getItem('summarizeai_client_id');
+if (!clientId) {
+    clientId = 'user_' + Math.random().toString(36).substring(2, 15) + '_' + Date.now();
+    localStorage.setItem('summarizeai_client_id', clientId);
+}
 
 // --- Global State ---
 const state = {
@@ -24,6 +56,7 @@ const state = {
     isSpeaking: false,
     deferredPrompt: null // PWA Deferred Install Prompt
 };
+
 
 // --- Service Worker Registration + Update Wizard Logic ---
 if ('serviceWorker' in navigator) {
@@ -291,6 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initEventListeners();
     initVoices();
     updateSavedLibraryUI();
+    syncNotesFromFirebase(); // Sync notes with Firebase database
     checkApiStatus();
     initPwaInstallPrompt();
 });
@@ -1027,7 +1061,37 @@ function saveSummaryToLibrary() {
     state.savedLibrary.unshift(newEntry);
     localStorage.setItem('student_summaries_lib', JSON.stringify(state.savedLibrary));
     updateSavedLibraryUI();
-    showToast('Note summary saved to local library!', 'success');
+    showToast('Note summary saved locally!', 'success');
+
+    // Sync to Firebase Realtime Database
+    if (database) {
+        database.ref('users/' + clientId + '/notes').set(state.savedLibrary)
+            .then(() => console.log('Successfully synced new note to Firebase cloud database.'))
+            .catch(err => console.warn('Could not sync to Firebase database (offline):', err));
+    }
+}
+
+// Fetch and sync notes from Firebase on startup
+function syncNotesFromFirebase() {
+    if (!database) return;
+    database.ref('users/' + clientId + '/notes').once('value')
+        .then(snapshot => {
+            const cloudNotes = snapshot.val();
+            if (cloudNotes && Array.isArray(cloudNotes)) {
+                // Merge cloud notes with local ones (preserving unique ids)
+                const localMap = new Map(state.savedLibrary.map(item => [item.id, item]));
+                cloudNotes.forEach(note => {
+                    if (note && note.id) {
+                        localMap.set(note.id, note);
+                    }
+                });
+                state.savedLibrary = Array.from(localMap.values()).sort((a, b) => b.id - a.id);
+                localStorage.setItem('student_summaries_lib', JSON.stringify(state.savedLibrary));
+                updateSavedLibraryUI();
+                console.log('Synchronized library with Firebase cloud database.');
+            }
+        })
+        .catch(err => console.warn('Firebase sync failed (using local storage fallback):', err));
 }
 
 function updateSavedLibraryUI() {
@@ -1082,6 +1146,13 @@ function deleteLibraryItem(id, e) {
     localStorage.setItem('student_summaries_lib', JSON.stringify(state.savedLibrary));
     updateSavedLibraryUI();
     showToast('Saved note deleted.', 'info');
+
+    // Sync deletion to Firebase
+    if (database) {
+        database.ref('users/' + clientId + '/notes').set(state.savedLibrary)
+            .then(() => console.log('Successfully synced deletion to Firebase.'))
+            .catch(err => console.warn('Could not sync deletion to Firebase (offline):', err));
+    }
 }
 
 // Export Download Helpers
