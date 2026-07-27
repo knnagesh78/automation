@@ -42,8 +42,8 @@
                 </div>
             </div>
             <div class="header-actions">
-                <!-- Header PWA Install Button (Hidden by default, shown when installable) -->
-                <button class="btn btn-primary pwa-install-btn" id="headerInstallBtn" style="display: none;">
+                <!-- Header PWA Install Button -->
+                <button class="btn btn-primary pwa-install-btn" id="headerInstallBtn">
                     <i class="fa-solid fa-mobile-screen-button"></i> Install App
                 </button>
 
@@ -315,7 +315,7 @@
         <footer class="app-footer">
             <div class="footer-content">
                 <p class="developer-credit">
-                    <i class="fa-solid fa-code"></i> Developed by <span class="dev-name">Nagesh</span> <span class="dev-badge"><i class="fa-solid fa-graduation-cap"></i> Diploma Student</span>
+                    <i class="fa-solid fa-code"></i> Developed by <span class="dev-name">K.N. Nagesh</span> <span class="dev-badge"><i class="fa-solid fa-laptop-code"></i> CME</span> <span class="dev-badge"><i class="fa-solid fa-graduation-cap"></i> Diploma Student</span>
                 </p>
                 <p class="footer-subtext">SummarizeAI Pro &bull; Smart Offline Note & Data Summarizer</p>
             </div>
@@ -325,16 +325,16 @@
         <div class="modal-overlay" id="pwaInstallModal">
             <div class="modal-card pwa-install-card">
                 <div class="modal-header">
-                    <h3><i class="fa-solid fa-mobile-screen-button"></i> Install SummarizeAI Mobile App</h3>
+                    <h3><i class="fa-solid fa-mobile-screen-button"></i> Install SummarizeAI App Wizard</h3>
                     <button class="btn-icon" id="closePwaModalBtn"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="modal-body pwa-modal-body">
                     <div class="pwa-app-icon-wrapper">
                         <img src="icons/icon.svg" alt="SummarizeAI App Icon" class="pwa-app-icon">
                     </div>
-                    <h2>Install SummarizeAI on Your Phone</h2>
-                    <p class="modal-desc">
-                        Get 1-click access directly from your home screen with <strong>100% offline note summarization</strong>, zero lag, and instant text-to-speech audio reading!
+                    <h2>Install SummarizeAI App</h2>
+                    <p class="modal-desc" id="pwaModalDesc">
+                        Get 1-click access directly from your device home screen with <strong>100% offline note summarization</strong>, zero lag, and instant text-to-speech reading!
                     </p>
 
                     <div class="pwa-features-grid">
@@ -352,8 +352,17 @@
                         </div>
                     </div>
 
+                    <div class="install-wizard-steps">
+                        <h4><i class="fa-solid fa-circle-info"></i> How to Install on Your Device:</h4>
+                        <ul>
+                            <li><strong>Chrome / Edge (Desktop):</strong> Click <strong>"Install App Now"</strong> below, or click the Install icon <i class="fa-solid fa-desktop"></i> in your browser address bar.</li>
+                            <li><strong>Android (Chrome):</strong> Tap <strong>"Install App Now"</strong> below or select <strong>Menu &rarr; Add to Home screen</strong>.</li>
+                            <li><strong>iOS (Safari):</strong> Tap <strong>Share <i class="fa-solid fa-share-nodes"></i></strong> &rarr; select <strong>"Add to Home Screen <i class="fa-solid fa-square-plus"></i>"</strong>.</li>
+                        </ul>
+                    </div>
+
                     <div class="modal-footer-actions pwa-footer-actions">
-                        <button class="btn btn-secondary" id="dismissPwaModalBtn">Maybe Later</button>
+                        <button class="btn btn-secondary" id="dismissPwaModalBtn">Close Wizard</button>
                         <button class="btn btn-primary btn-lg-install" id="modalInstallBtn">
                             <i class="fa-solid fa-download"></i> Install App Now
                         </button>

@@ -1385,3 +1385,40 @@ input:checked + .slider:before {
     font-size: 0.8rem;
     color: var(--text-dim);
 }
+
+/* Install Wizard Steps */
+.install-wizard-steps {
+    margin-top: 18px;
+    padding: 14px 18px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    text-align: left;
+}
+
+.install-wizard-steps h4 {
+    font-size: 0.88rem;
+    color: #a5b4fc;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.install-wizard-steps ul {
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.install-wizard-steps li {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.install-wizard-steps strong {
+    color: var(--text-main);
+}
+

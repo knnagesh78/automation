@@ -173,7 +173,9 @@ function initEventListeners() {
     });
 
     DOM.modalInstallBtn.addEventListener('click', triggerPwaInstallation);
-    DOM.headerInstallBtn.addEventListener('click', triggerPwaInstallation);
+    DOM.headerInstallBtn.addEventListener('click', () => {
+        DOM.pwaInstallModal.classList.add('show');
+    });
 
     // Dropdown toggle
     DOM.sampleDropdownBtn.addEventListener('click', (e) => {
@@ -356,22 +358,20 @@ function initPwaInstallPrompt() {
 
 async function triggerPwaInstallation() {
     if (!state.deferredPrompt) {
-        showToast('App installation is ready or already installed! Check your home screen.', 'info');
-        DOM.pwaInstallModal.classList.remove('show');
+        showToast('Please follow the on-screen steps above to install on your browser/device.', 'info');
         return;
     }
 
-    DOM.pwaInstallModal.classList.remove('show');
     state.deferredPrompt.prompt();
 
     const { outcome } = await state.deferredPrompt.userChoice;
     if (outcome === 'accepted') {
         showToast('Installing SummarizeAI App...', 'success');
+        DOM.pwaInstallModal.classList.remove('show');
     } else {
         showToast('App installation postponed.', 'info');
     }
     state.deferredPrompt = null;
-    DOM.headerInstallBtn.style.display = 'none';
 }
 
 // --- Check API Key & Status ---
