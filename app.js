@@ -411,19 +411,118 @@ function updateInputMetrics() {
 
 // --- File Handling ---
 function handleFile(file) {
+    const ext = file.name.split('.').pop().toLowerCase();
+
+    // Update UI preview info
     DOM.fileName.textContent = file.name;
     DOM.fileSize.textContent = `${(file.size / 1024).toFixed(1)} KB`;
     DOM.dropZone.querySelector('.drop-zone-content').style.display = 'none';
     DOM.filePreviewInfo.style.display = 'flex';
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        DOM.sourceText.value = e.target.result;
-        updateInputMetrics();
-        showToast(`File "${file.name}" loaded successfully!`, 'success');
-    };
-    reader.onerror = () => showToast('Failed to read text file.', 'error');
-    reader.readAsText(file);
+    if (ext === 'txt' || ext === 'md') {
+        // Plain text / Markdown — read directly as text
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const text = e.target.result.trim();
+            if (!text) {
+                showToast('The text file appears to be empty.', 'warning');
+                return;
+            }
+            DOM.sourceText.value = text;
+            state.sourceText = text;
+            updateInputMetrics();
+            showToast(`"${file.name}" loaded successfully! (${text.split(/\s+/).length} words)`, 'success');
+        };
+        reader.onerror = () => showToast('Failed to read the text file.', 'error');
+        reader.readAsText(file);
+
+    } else if (ext === 'pdf') {
+        // PDF — extract text via PDF.js
+        showToast('Extracting text from PDF, please wait...', 'info');
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                // Configure PDF.js worker
+                if (typeof pdfjsLib === 'undefined') {
+                    showToast('PDF.js library not loaded. Please check your internet connection.', 'error');
+                    return;
+                }
+                pdfjsLib.GlobalWorkerOptions.workerSrc =
+                    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+                const typedArray = new Uint8Array(e.target.result);
+                const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+
+                let fullText = '';
+                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    const page = await pdf.getPage(pageNum);
+                    const content = await page.getTextContent();
+                    const pageText = content.items.map(item => item.str).join(' ');
+                    fullText += pageText + '\n\n';
+                }
+
+                fullText = fullText.trim();
+                if (!fullText || fullText.split(/\s+/).length < 10) {
+                    showToast('Could not extract readable text from this PDF. It may be a scanned image. Try copy-pasting the text directly.', 'warning');
+                    return;
+                }
+
+                DOM.sourceText.value = fullText;
+                state.sourceText = fullText;
+                updateInputMetrics();
+                showToast(`PDF extracted successfully! ${pdf.numPages} page(s), ${fullText.split(/\s+/).length} words.`, 'success');
+            } catch (err) {
+                console.error('PDF extraction error:', err);
+                showToast('PDF extraction failed: ' + err.message, 'error');
+            }
+        };
+        reader.onerror = () => showToast('Failed to read the PDF file.', 'error');
+        reader.readAsArrayBuffer(file);
+
+    } else if (ext === 'docx' || ext === 'doc') {
+        // DOCX — try reading raw XML text from the docx zip structure
+        showToast('Extracting text from DOCX, please wait...', 'info');
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                // DOCX is a zip; use basic XML text extraction
+                const arrayBuffer = e.target.result;
+                const decoder = new TextDecoder('utf-8');
+
+                // Try to find readable word/document.xml content using regex on raw bytes
+                const raw = decoder.decode(new Uint8Array(arrayBuffer));
+                // Extract readable words from XML tags: look for <w:t> elements
+                const matches = raw.match(/<w:t[^>]*>([^<]+)<\/w:t>/g);
+                if (matches && matches.length > 0) {
+                    const text = matches
+                        .map(m => m.replace(/<[^>]+>/g, ''))
+                        .join(' ')
+                        .replace(/\s+/g, ' ')
+                        .trim();
+
+                    if (text.split(/\s+/).length < 10) {
+                        showToast('DOCX text extraction yielded too little content. Try copy-pasting the text manually.', 'warning');
+                        return;
+                    }
+
+                    DOM.sourceText.value = text;
+                    state.sourceText = text;
+                    updateInputMetrics();
+                    showToast(`DOCX extracted: ${text.split(/\s+/).length} words loaded.`, 'success');
+                } else {
+                    showToast('Could not extract text from this DOCX file. Please copy & paste the text directly into the box.', 'warning');
+                }
+            } catch (err) {
+                console.error('DOCX extraction error:', err);
+                showToast('DOCX extraction failed. Please paste the text manually.', 'warning');
+            }
+        };
+        reader.onerror = () => showToast('Failed to read the DOCX file.', 'error');
+        reader.readAsArrayBuffer(file);
+
+    } else {
+        showToast(`Unsupported file type ".${ext}". Please use .txt, .md, .pdf, or .docx`, 'warning');
+    }
 }
 
 // --- MAIN SUMMARIZATION LOGIC ---
