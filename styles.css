@@ -1314,3 +1314,74 @@ input:checked + .slider:before {
     to { opacity: 1; }
 }
 
+/* ==========================================================================
+   App Footer Styles
+   ========================================================================== */
+.app-footer {
+    margin-top: 24px;
+    padding: 18px 24px;
+    background: var(--bg-panel);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--glass-shadow);
+    text-align: center;
+    transition: var(--transition);
+}
+
+.app-footer:hover {
+    border-color: var(--border-highlight);
+    box-shadow: var(--glow-effect);
+}
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.developer-credit {
+    font-size: 0.95rem;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.developer-credit i.fa-code {
+    color: var(--primary);
+}
+
+.dev-name {
+    font-weight: 700;
+    font-family: 'Outfit', sans-serif;
+    background: linear-gradient(135deg, #a5b4fc, #6366f1, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 0.5px;
+    font-size: 1.05rem;
+}
+
+.dev-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    background: rgba(99, 102, 241, 0.15);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: var(--radius-full);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #a5b4fc;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+.footer-subtext {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+}
