@@ -3,7 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Note & Data Summarizer Automation</title>
+    <title>SummarizeAI Pro - Student Note & Data Summarizer</title>
+
+    <!-- PWA Web Manifest & Theme Colors -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SummarizeAI">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
+    <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+
     <!-- Modern Typography: Inter & Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,6 +42,11 @@
                 </div>
             </div>
             <div class="header-actions">
+                <!-- Header PWA Install Button (Hidden by default, shown when installable) -->
+                <button class="btn btn-primary pwa-install-btn" id="headerInstallBtn" style="display: none;">
+                    <i class="fa-solid fa-mobile-screen-button"></i> Install App
+                </button>
+
                 <div class="sample-loader-dropdown">
                     <button class="btn btn-secondary dropdown-trigger" id="sampleDropdownBtn">
                         <i class="fa-solid fa-folder-open"></i> Load Preset Notes <i class="fa-solid fa-chevron-down"></i>
@@ -295,6 +310,47 @@
                 </div>
             </section>
         </main>
+
+        <!-- PWA Installation Pop-up Modal Window -->
+        <div class="modal-overlay" id="pwaInstallModal">
+            <div class="modal-card pwa-install-card">
+                <div class="modal-header">
+                    <h3><i class="fa-solid fa-mobile-screen-button"></i> Install SummarizeAI Mobile App</h3>
+                    <button class="btn-icon" id="closePwaModalBtn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="modal-body pwa-modal-body">
+                    <div class="pwa-app-icon-wrapper">
+                        <img src="icons/icon.svg" alt="SummarizeAI App Icon" class="pwa-app-icon">
+                    </div>
+                    <h2>Install SummarizeAI on Your Phone</h2>
+                    <p class="modal-desc">
+                        Get 1-click access directly from your home screen with <strong>100% offline note summarization</strong>, zero lag, and instant text-to-speech audio reading!
+                    </p>
+
+                    <div class="pwa-features-grid">
+                        <div class="pwa-feature-item">
+                            <i class="fa-solid fa-bolt"></i>
+                            <span>Instant Launch</span>
+                        </div>
+                        <div class="pwa-feature-item">
+                            <i class="fa-solid fa-wifi-slash"></i>
+                            <span>Works Offline</span>
+                        </div>
+                        <div class="pwa-feature-item">
+                            <i class="fa-solid fa-layer-group"></i>
+                            <span>Flashcards</span>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer-actions pwa-footer-actions">
+                        <button class="btn btn-secondary" id="dismissPwaModalBtn">Maybe Later</button>
+                        <button class="btn btn-primary btn-lg-install" id="modalInstallBtn">
+                            <i class="fa-solid fa-download"></i> Install App Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Saved Library Drawer Modal -->
         <div class="modal-overlay" id="libraryModal">

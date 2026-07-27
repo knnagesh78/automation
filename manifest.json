@@ -1,0 +1,24 @@
+{
+  "name": "SummarizeAI Pro - Student Note & Data Summarizer",
+  "short_name": "SummarizeAI",
+  "description": "Condense long notes, textbook chapters, and documents into concise 2-3 paragraph summaries, bullet takeaways, and flashcards.",
+  "start_url": "./index.html",
+  "id": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b0f19",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "512x512 192x192 128x128 64x64",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "education",
+    "productivity",
+    "utilities"
+  ]
+}

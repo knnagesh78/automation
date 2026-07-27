@@ -21,8 +21,19 @@ const state = {
     activeFlashcardIndex: 0,
     savedLibrary: JSON.parse(localStorage.getItem('student_summaries_lib') || '[]'),
     speechUtterance: null,
-    isSpeaking: false
+    isSpeaking: false,
+    deferredPrompt: null // PWA Deferred Install Prompt
 };
+
+// --- Service Worker Registration for PWA ---
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+            .then(reg => console.log('Service Worker registered successfully:', reg.scope))
+            .catch(err => console.log('Service Worker registration failed:', err));
+    });
+}
+
 
 // --- Preset Sample Notes for Instant Student Testing ---
 const PRESET_NOTES = {
@@ -69,7 +80,12 @@ const DOM = {
     sampleDropdownMenu: document.getElementById('sampleDropdownMenu'),
     openLibraryBtn: document.getElementById('openLibraryBtn'),
     apiConfigBtn: document.getElementById('apiConfigBtn'),
-    apiStatusBadge: document.getElementById('apiStatusBadge'),
+    apiStatusBadge: document.getElementById('apiStatusBadge'),    // Modals & PWA
+    pwaInstallModal: document.getElementById('pwaInstallModal'),
+    closePwaModalBtn: document.getElementById('closePwaModalBtn'),
+    dismissPwaModalBtn: document.getElementById('dismissPwaModalBtn'),
+    modalInstallBtn: document.getElementById('modalInstallBtn'),
+    headerInstallBtn: document.getElementById('headerInstallBtn'),
     libraryModal: document.getElementById('libraryModal'),
     closeLibraryBtn: document.getElementById('closeLibraryBtn'),
     apiModal: document.getElementById('apiModal'),
@@ -144,10 +160,21 @@ document.addEventListener('DOMContentLoaded', () => {
     initVoices();
     updateSavedLibraryUI();
     checkApiStatus();
+    initPwaInstallPrompt();
 });
 
 // --- Event Listeners Setup ---
 function initEventListeners() {
+    // PWA Modal Controls
+    DOM.closePwaModalBtn.addEventListener('click', () => DOM.pwaInstallModal.classList.remove('show'));
+    DOM.dismissPwaModalBtn.addEventListener('click', () => {
+        DOM.pwaInstallModal.classList.remove('show');
+        sessionStorage.setItem('pwa_modal_dismissed', 'true');
+    });
+
+    DOM.modalInstallBtn.addEventListener('click', triggerPwaInstallation);
+    DOM.headerInstallBtn.addEventListener('click', triggerPwaInstallation);
+
     // Dropdown toggle
     DOM.sampleDropdownBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -280,6 +307,71 @@ function initEventListeners() {
     DOM.librarySearchInput.addEventListener('input', (e) => {
         renderLibraryList(e.target.value.trim().toLowerCase());
     });
+}
+
+// --- PWA Installation Logic & Pop-up Modal ---
+function initPwaInstallPrompt() {
+    // Detect iOS devices (Safari does not fire beforeinstallprompt)
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+
+    if (isIOS && !isStandalone) {
+        // Show iOS installation instructions popup
+        setTimeout(() => {
+            if (!sessionStorage.getItem('pwa_modal_dismissed')) {
+                DOM.pwaInstallModal.classList.add('show');
+                const desc = DOM.pwaInstallModal.querySelector('.modal-desc');
+                if (desc) {
+                    desc.innerHTML = 'To install on <strong>iPhone/iPad</strong>: Tap the <strong>Share <i class="fa-solid fa-share-nodes"></i></strong> button in Safari and select <strong>"Add to Home Screen <i class="fa-solid fa-square-plus"></i>"</strong>.';
+                }
+                DOM.modalInstallBtn.style.display = 'none';
+            }
+        }, 1500);
+    }
+
+    // Standard PWA Install Prompt Handler (Chrome, Android, Edge, Opera)
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        state.deferredPrompt = e;
+
+        // Show header install button
+        DOM.headerInstallBtn.style.display = 'inline-flex';
+
+        // Auto-show install pop-up modal if not dismissed in this session
+        if (!sessionStorage.getItem('pwa_modal_dismissed')) {
+            setTimeout(() => {
+                DOM.pwaInstallModal.classList.add('show');
+            }, 1000);
+        }
+    });
+
+    // App installed event listener
+    window.addEventListener('appinstalled', () => {
+        state.deferredPrompt = null;
+        DOM.pwaInstallModal.classList.remove('show');
+        DOM.headerInstallBtn.style.display = 'none';
+        showToast('🎉 SummarizeAI app installed successfully!', 'success');
+    });
+}
+
+async function triggerPwaInstallation() {
+    if (!state.deferredPrompt) {
+        showToast('App installation is ready or already installed! Check your home screen.', 'info');
+        DOM.pwaInstallModal.classList.remove('show');
+        return;
+    }
+
+    DOM.pwaInstallModal.classList.remove('show');
+    state.deferredPrompt.prompt();
+
+    const { outcome } = await state.deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+        showToast('Installing SummarizeAI App...', 'success');
+    } else {
+        showToast('App installation postponed.', 'info');
+    }
+    state.deferredPrompt = null;
+    DOM.headerInstallBtn.style.display = 'none';
 }
 
 // --- Check API Key & Status ---

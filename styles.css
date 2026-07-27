@@ -1055,6 +1055,92 @@ input:checked + .slider:before {
     gap: 8px;
 }
 
+/* PWA Install Modal & Buttons */
+.pwa-install-btn {
+    animation: pulseGlow 2s infinite ease-in-out;
+}
+
+@keyframes pulseGlow {
+    0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.6); }
+    70% { box-shadow: 0 0 0 12px rgba(99, 102, 241, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+}
+
+.pwa-install-card {
+    max-width: 480px;
+    text-align: center;
+    border: 2px solid var(--primary);
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 27, 75, 0.95));
+}
+
+.pwa-modal-body {
+    align-items: center;
+    padding: 32px 24px;
+}
+
+.pwa-app-icon-wrapper {
+    width: 88px;
+    height: 88px;
+    margin-bottom: 8px;
+    filter: drop-shadow(0 0 20px var(--primary-glow));
+    animation: floatIcon 3s infinite ease-in-out alternate;
+}
+
+@keyframes floatIcon {
+    from { transform: translateY(0); }
+    to { transform: translateY(-8px); }
+}
+
+.pwa-app-icon {
+    width: 100%;
+    height: 100%;
+}
+
+.pwa-install-card h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.pwa-features-grid {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    width: 100%;
+    margin: 12px 0 20px 0;
+}
+
+.pwa-feature-item {
+    background: rgba(99, 102, 241, 0.12);
+    border: 1px solid var(--border-highlight);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #a5b4fc;
+}
+
+.pwa-feature-item i {
+    color: var(--accent-teal);
+}
+
+.pwa-footer-actions {
+    width: 100%;
+    justify-content: center;
+    gap: 12px;
+}
+
+.btn-lg-install {
+    padding: 14px 24px;
+    font-size: 0.95rem;
+    font-family: 'Outfit', sans-serif;
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.5);
+}
+
 /* Modals */
 .modal-overlay {
     position: fixed;
@@ -1227,3 +1313,4 @@ input:checked + .slider:before {
     from { opacity: 0; }
     to { opacity: 1; }
 }
+
