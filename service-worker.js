@@ -9,9 +9,9 @@ const ASSETS_TO_CACHE = [
   './styles.css',
   './app.js',
   './manifest.json',
-  './icons/icon.svg',
-  './icons/icon-192.png',
-  './icons/icon-512.png'
+  './icons/icon.svg?v=1.2.0',
+  './icons/icon-192.png?v=1.2.0',
+  './icons/icon-512.png?v=1.2.0'
 ];
 
 // Install Event - Cache Core App Shell
