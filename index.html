@@ -420,6 +420,137 @@
             </div>
         </div>
 
+        <!-- ====== UPDATE AVAILABLE BANNER (slides in from top) ====== -->
+        <div class="update-banner" id="updateBanner">
+            <div class="update-banner-inner">
+                <div class="update-banner-left">
+                    <span class="update-pulse-dot"></span>
+                    <i class="fa-solid fa-arrows-rotate update-banner-icon"></i>
+                    <div class="update-banner-text">
+                        <strong>New Update Available!</strong>
+                        <span>A fresh version of SummarizeAI is ready to install.</span>
+                    </div>
+                </div>
+                <div class="update-banner-actions">
+                    <button class="btn btn-secondary btn-sm" id="updateLaterBtn">Later</button>
+                    <button class="btn btn-primary btn-sm" id="updateShowWizardBtn">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> See What's New
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== UPDATE WIZARD MODAL ====== -->
+        <div class="modal-overlay" id="updateWizardModal">
+            <div class="modal-card update-wizard-card">
+                <div class="modal-header update-wizard-header">
+                    <div class="update-wizard-icon-wrap">
+                        <i class="fa-solid fa-circle-up"></i>
+                    </div>
+                    <div>
+                        <h3>SummarizeAI Update Ready</h3>
+                        <span class="update-version-badge">v1.2.0 — Available Now</span>
+                    </div>
+                    <button class="btn-icon" id="closeUpdateWizardBtn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="modal-body">
+
+                    <!-- Progress Steps -->
+                    <div class="update-wizard-steps">
+                        <div class="update-step active" id="wStep1">
+                            <div class="update-step-dot">1</div>
+                            <span>What's New</span>
+                        </div>
+                        <div class="update-step-line"></div>
+                        <div class="update-step" id="wStep2">
+                            <div class="update-step-dot">2</div>
+                            <span>Review</span>
+                        </div>
+                        <div class="update-step-line"></div>
+                        <div class="update-step" id="wStep3">
+                            <div class="update-step-dot">3</div>
+                            <span>Update</span>
+                        </div>
+                    </div>
+
+                    <!-- Step 1: Changelog -->
+                    <div class="update-wizard-page" id="wPage1">
+                        <h4 class="update-page-title"><i class="fa-solid fa-sparkles"></i> What's New in v1.2.0</h4>
+                        <ul class="update-changelog-list">
+                            <li class="update-log-item update-log-new">
+                                <i class="fa-solid fa-plus-circle"></i>
+                                <div><strong>New App Icon</strong> — Fresh, redesigned icon now appears on your home screen.</div>
+                            </li>
+                            <li class="update-log-item update-log-improve">
+                                <i class="fa-solid fa-bolt"></i>
+                                <div><strong>Faster Summarization</strong> — Improved NLP scoring for more accurate bullet points.</div>
+                            </li>
+                            <li class="update-log-item update-log-fix">
+                                <i class="fa-solid fa-wrench"></i>
+                                <div><strong>Bug Fixes</strong> — Fixed audio reader voice selection on Android Chrome.</div>
+                            </li>
+                            <li class="update-log-item update-log-improve">
+                                <i class="fa-solid fa-mobile-screen"></i>
+                                <div><strong>Better Mobile Layout</strong> — Control panel now stacks cleanly on small screens.</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Step 2: Review notice -->
+                    <div class="update-wizard-page" id="wPage2" style="display:none;">
+                        <h4 class="update-page-title"><i class="fa-solid fa-circle-info"></i> Before You Update</h4>
+                        <div class="update-review-box">
+                            <div class="update-review-item">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                <div>
+                                    <strong>Your saved notes are safe</strong>
+                                    <p>All summaries in your library are stored in local storage and will not be cleared.</p>
+                                </div>
+                            </div>
+                            <div class="update-review-item">
+                                <i class="fa-solid fa-wifi-slash"></i>
+                                <div>
+                                    <strong>Works offline after update</strong>
+                                    <p>The update will be cached for full offline use immediately after reloading.</p>
+                                </div>
+                            </div>
+                            <div class="update-review-item">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                                <div>
+                                    <strong>Takes only 2 seconds</strong>
+                                    <p>The app will reload once to apply the update. You'll be right back.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Apply update -->
+                    <div class="update-wizard-page" id="wPage3" style="display:none;">
+                        <h4 class="update-page-title"><i class="fa-solid fa-rocket"></i> Apply Update Now</h4>
+                        <div class="update-apply-box">
+                            <div class="update-apply-icon-ring" id="updateApplyRing">
+                                <i class="fa-solid fa-arrows-rotate" id="updateApplyIcon"></i>
+                            </div>
+                            <p class="update-apply-desc" id="updateApplyDesc">
+                                Click <strong>Update Now</strong> below. The app will reload in 2 seconds with the new version, new icon, and all improvements applied.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- Wizard Navigation Footer -->
+                <div class="modal-footer-actions update-wizard-footer">
+                    <button class="btn btn-secondary" id="updateWizardBackBtn" style="display:none;">
+                        <i class="fa-solid fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn btn-secondary" id="updateWizardSkipBtn">Skip Update</button>
+                    <button class="btn btn-primary" id="updateWizardNextBtn">
+                        Next <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Toast Notification Container -->
         <div class="toast-container" id="toastContainer"></div>
     </div>

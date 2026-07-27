@@ -1,4 +1,5 @@
 {
+  "version": "1.2.0",
   "name": "SummarizeAI Pro - Student Note & Data Summarizer",
   "short_name": "SummarizeAI",
   "description": "Condense long notes, textbook chapters, and documents into concise 2-3 paragraph summaries, bullet takeaways, and flashcards.",

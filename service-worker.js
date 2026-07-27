@@ -2,7 +2,7 @@
    SUMMARIZEAI PRO - SERVICE WORKER (OFFLINE PWA CAPABILITY)
    ========================================================================== */
 
-const CACHE_NAME = 'summarizeai-v1.1.0';
+const CACHE_NAME = 'summarizeai-v1.2.0'; // ← bumped: forces cache refresh on all installed devices
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -92,4 +92,11 @@ self.addEventListener('fetch', (event) => {
       });
     })
   );
+});
+
+// Message Listener — allows clients to trigger skipWaiting for immediate update
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });

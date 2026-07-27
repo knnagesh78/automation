@@ -25,14 +25,146 @@ const state = {
     deferredPrompt: null // PWA Deferred Install Prompt
 };
 
-// --- Service Worker Registration for PWA ---
+// --- Service Worker Registration + Update Wizard Logic ---
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js')
-            .then(reg => console.log('Service Worker registered successfully:', reg.scope))
-            .catch(err => console.log('Service Worker registration failed:', err));
+        navigator.serviceWorker.register('./service-worker.js').then(reg => {
+            console.log('[SW] Registered:', reg.scope);
+
+            // Check if there is already a waiting SW (user opened app after update installed in bg)
+            if (reg.waiting) {
+                showUpdateBanner();
+            }
+
+            // Fires when a NEW SW finishes installing and is waiting to take over
+            reg.addEventListener('updatefound', () => {
+                const newWorker = reg.installing;
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        // New version is ready; existing version still active
+                        showUpdateBanner();
+                    }
+                });
+            });
+        }).catch(err => console.warn('[SW] Registration failed:', err));
+
+        // When SW takes over (after skipWaiting), reload the page to use new cache
+        let swRefreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!swRefreshing) {
+                swRefreshing = true;
+                window.location.reload();
+            }
+        });
     });
 }
+
+// ---- Update Banner & Wizard Controllers ----
+
+let updateWizardStep = 1;
+
+function showUpdateBanner() {
+    const banner = document.getElementById('updateBanner');
+    if (banner) {
+        // Small delay so user sees the app first, then banner slides in
+        setTimeout(() => banner.classList.add('show'), 1500);
+    }
+}
+
+function hideUpdateBanner() {
+    const banner = document.getElementById('updateBanner');
+    if (banner) banner.classList.remove('show');
+}
+
+function openUpdateWizard() {
+    hideUpdateBanner();
+    updateWizardStep = 1;
+    renderUpdateWizardStep(1);
+    const modal = document.getElementById('updateWizardModal');
+    if (modal) modal.classList.add('active');
+}
+
+function closeUpdateWizard() {
+    const modal = document.getElementById('updateWizardModal');
+    if (modal) modal.classList.remove('active');
+}
+
+function renderUpdateWizardStep(step) {
+    // Pages
+    document.getElementById('wPage1').style.display = step === 1 ? 'block' : 'none';
+    document.getElementById('wPage2').style.display = step === 2 ? 'block' : 'none';
+    document.getElementById('wPage3').style.display = step === 3 ? 'block' : 'none';
+
+    // Step indicators
+    ['wStep1','wStep2','wStep3'].forEach((id, i) => {
+        const el = document.getElementById(id);
+        el.classList.remove('active', 'done');
+        if (i + 1 < step) el.classList.add('done');
+        if (i + 1 === step) el.classList.add('active');
+    });
+
+    // Back button
+    const backBtn = document.getElementById('updateWizardBackBtn');
+    backBtn.style.display = step > 1 ? 'inline-flex' : 'none';
+
+    // Next/Update button
+    const nextBtn = document.getElementById('updateWizardNextBtn');
+    if (step === 3) {
+        nextBtn.innerHTML = '<i class="fa-solid fa-rocket"></i> Update Now';
+    } else {
+        nextBtn.innerHTML = 'Next <i class="fa-solid fa-arrow-right"></i>';
+    }
+}
+
+function applyUpdate() {
+    // Animate the icon ring
+    const ring = document.getElementById('updateApplyRing');
+    const desc = document.getElementById('updateApplyDesc');
+    const nextBtn = document.getElementById('updateWizardNextBtn');
+    const backBtn = document.getElementById('updateWizardBackBtn');
+    const skipBtn = document.getElementById('updateWizardSkipBtn');
+
+    ring.classList.add('spinning');
+    desc.innerHTML = '<strong>Updating...</strong> Applying new version and refreshing cache. Please wait.';
+    nextBtn.disabled = true;
+    backBtn.style.display = 'none';
+    skipBtn.style.display = 'none';
+
+    // Tell the waiting SW to take over immediately
+    navigator.serviceWorker.getRegistration().then(reg => {
+        if (reg && reg.waiting) {
+            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            // controllerchange listener in registration block will reload the page
+        } else {
+            // Fallback: just reload
+            window.location.reload();
+        }
+    });
+}
+
+// Bind update wizard events after DOM is ready
+window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('updateLaterBtn')?.addEventListener('click', hideUpdateBanner);
+    document.getElementById('updateShowWizardBtn')?.addEventListener('click', openUpdateWizard);
+    document.getElementById('closeUpdateWizardBtn')?.addEventListener('click', closeUpdateWizard);
+    document.getElementById('updateWizardSkipBtn')?.addEventListener('click', closeUpdateWizard);
+
+    document.getElementById('updateWizardNextBtn')?.addEventListener('click', () => {
+        if (updateWizardStep < 3) {
+            updateWizardStep++;
+            renderUpdateWizardStep(updateWizardStep);
+        } else {
+            applyUpdate();
+        }
+    });
+
+    document.getElementById('updateWizardBackBtn')?.addEventListener('click', () => {
+        if (updateWizardStep > 1) {
+            updateWizardStep--;
+            renderUpdateWizardStep(updateWizardStep);
+        }
+    });
+});
 
 
 // --- Preset Sample Notes for Instant Student Testing ---
