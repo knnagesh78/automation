@@ -73,6 +73,21 @@
                 <button class="btn btn-secondary" id="apiConfigBtn" title="Configure AI API Key">
                     <i class="fa-solid fa-key"></i> <span id="apiStatusBadge">Offline Engine</span>
                 </button>
+
+                <!-- Auth Buttons -->
+                <button class="btn btn-primary" id="headerLoginBtn">
+                    <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                </button>
+                <div class="user-profile-dropdown" id="userProfileDropdown" style="display: none;">
+                    <button class="btn btn-secondary" id="userMenuBtn">
+                        <i class="fa-solid fa-user-circle"></i> <span id="userEmailSpan">Account</span> <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-menu" id="userDropdownMenu">
+                        <button class="dropdown-item" id="logoutBtn">
+                            <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+                        </button>
+                    </div>
+                </div>
             </div>
         </header>
 
@@ -551,6 +566,44 @@
             </div>
         </div>
 
+        <!-- ====== USER AUTHENTICATION SIGN-IN MODAL ====== -->
+        <div class="modal-overlay" id="authModal">
+            <div class="modal-card auth-modal-card">
+                <div class="modal-header">
+                    <h3><i class="fa-solid fa-user-shield"></i> SummarizeAI Student Account</h3>
+                    <button class="btn-icon" id="closeAuthBtn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-desc">
+                        Sign in to automatically sync notes, flashcards, and summaries securely to the cloud.
+                    </p>
+                    
+                    <form id="authForm">
+                        <div class="form-group">
+                            <label for="authEmail">Email Address:</label>
+                            <input type="email" id="authEmail" required placeholder="name@school.edu" class="styled-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="authPassword">Password:</label>
+                            <input type="password" id="authPassword" required placeholder="••••••••" class="styled-input">
+                        </div>
+
+                        <div class="auth-toggle-hint">
+                            <span id="authToggleText">Don't have a student account?</span> 
+                            <a href="#" id="toggleAuthModeBtn">Register here</a>
+                        </div>
+                        
+                        <div class="modal-footer-actions">
+                            <button type="button" class="btn btn-secondary" id="cancelAuthBtn">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="submitAuthBtn">
+                                <i class="fa-solid fa-right-to-bracket"></i> <span id="authSubmitText">Sign In</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- Toast Notification Container -->
         <div class="toast-container" id="toastContainer"></div>
     </div>
@@ -558,6 +611,7 @@
     <!-- Firebase App and Database (Compat Version) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
 
     <!-- Application Script -->

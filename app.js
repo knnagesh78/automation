@@ -12,12 +12,14 @@ const firebaseConfig = {
 
 // Initialize Firebase using compat SDK safely
 let database = null;
+let auth = null;
 let analytics = null;
 
 if (typeof firebase !== 'undefined') {
     try {
         firebase.initializeApp(firebaseConfig);
         database = firebase.database();
+        auth = firebase.auth();
         analytics = firebase.analytics();
         console.log('[Firebase] Successfully initialized.');
     } catch (e) {
@@ -26,6 +28,7 @@ if (typeof firebase !== 'undefined') {
 } else {
     console.warn('[Firebase] SDK scripts did not load. Running in local-only fallback mode.');
 }
+
 
 // Generate or retrieve a persistent unique client ID
 let clientId = localStorage.getItem('summarizeai_client_id');
@@ -259,6 +262,23 @@ const DOM = {
     saveApiKeyBtn: document.getElementById('saveApiKeyBtn'),
     clearApiKeyBtn: document.getElementById('clearApiKeyBtn'),
 
+    // Auth Selectors
+    headerLoginBtn: document.getElementById('headerLoginBtn'),
+    userProfileDropdown: document.getElementById('userProfileDropdown'),
+    userMenuBtn: document.getElementById('userMenuBtn'),
+    userDropdownMenu: document.getElementById('userDropdownMenu'),
+    logoutBtn: document.getElementById('logoutBtn'),
+    userEmailSpan: document.getElementById('userEmailSpan'),
+    authModal: document.getElementById('authModal'),
+    closeAuthBtn: document.getElementById('closeAuthBtn'),
+    cancelAuthBtn: document.getElementById('cancelAuthBtn'),
+    authForm: document.getElementById('authForm'),
+    authEmail: document.getElementById('authEmail'),
+    authPassword: document.getElementById('authPassword'),
+    toggleAuthModeBtn: document.getElementById('toggleAuthModeBtn'),
+    authSubmitText: document.getElementById('authSubmitText'),
+    authToggleText: document.getElementById('authToggleText'),
+
     // Input Section
     dropZone: document.getElementById('dropZone'),
     fileInput: document.getElementById('fileInput'),
@@ -358,6 +378,54 @@ function initEventListeners() {
     DOM.closeLibraryBtn.addEventListener('click', () => DOM.libraryModal.classList.remove('show'));
     DOM.apiConfigBtn.addEventListener('click', () => DOM.apiModal.classList.add('show'));
     DOM.closeApiBtn.addEventListener('click', () => DOM.apiModal.classList.remove('show'));
+
+    // Authentication Event Listeners
+    DOM.headerLoginBtn.addEventListener('click', () => {
+        showAuthModal(true);
+    });
+
+    DOM.closeAuthBtn.addEventListener('click', () => {
+        DOM.authModal.classList.remove('show');
+    });
+
+    DOM.cancelAuthBtn.addEventListener('click', () => {
+        DOM.authModal.classList.remove('show');
+    });
+
+    let isSignUpMode = false;
+    DOM.toggleAuthModeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        isSignUpMode = !isSignUpMode;
+        if (isSignUpMode) {
+            DOM.authSubmitText.textContent = 'Register Account';
+            DOM.authToggleText.textContent = 'Already have a student account?';
+            DOM.toggleAuthModeBtn.textContent = 'Sign In here';
+        } else {
+            DOM.authSubmitText.textContent = 'Sign In';
+            DOM.authToggleText.textContent = "Don't have a student account?";
+            DOM.toggleAuthModeBtn.textContent = 'Register here';
+        }
+    });
+
+    DOM.authForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = DOM.authEmail.value.trim();
+        const password = DOM.authPassword.value.trim();
+        handleAuthSubmit(email, password, isSignUpMode);
+    });
+
+    DOM.userMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        DOM.userDropdownMenu.classList.toggle('show');
+    });
+
+    DOM.logoutBtn.addEventListener('click', () => {
+        handleLogout();
+    });
+
+    document.addEventListener('click', () => {
+        DOM.userDropdownMenu.classList.remove('show');
+    });
 
     // API Key Save / Clear
     DOM.saveApiKeyBtn.addEventListener('click', () => {
@@ -1242,3 +1310,94 @@ function escapeHTML(str) {
         tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
     );
 }
+
+// --- USER AUTHENTICATION HANDLERS ---
+
+function showAuthModal(show = true) {
+    if (show) {
+        DOM.authModal.classList.add('show');
+        DOM.authEmail.value = '';
+        DOM.authPassword.value = '';
+    } else {
+        DOM.authModal.classList.remove('show');
+    }
+}
+
+function handleAuthSubmit(email, password, isSignUp) {
+    if (!auth) {
+        showToast('Firebase Authentication is not available.', 'error');
+        return;
+    }
+
+    const submitBtn = document.getElementById('submitAuthBtn');
+    submitBtn.disabled = true;
+
+    if (isSignUp) {
+        // Sign Up with Email and Password
+        auth.createUserWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                showToast('Student account registered successfully!', 'success');
+                showAuthModal(false);
+            })
+            .catch((error) => {
+                console.error(error);
+                showToast(error.message, 'error');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+            });
+    } else {
+        // Sign In with Email and Password
+        auth.signInWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                showToast('Signed in successfully!', 'success');
+                showAuthModal(false);
+            })
+            .catch((error) => {
+                console.error(error);
+                showToast(error.message, 'error');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+            });
+    }
+}
+
+function handleLogout() {
+    if (!auth) return;
+    auth.signOut()
+        .then(() => {
+            showToast('Signed out successfully.', 'info');
+        })
+        .catch((error) => {
+            console.error(error);
+            showToast('Sign out failed.', 'error');
+        });
+}
+
+// Monitor Authentication State
+if (auth) {
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            // User is signed in
+            clientId = user.uid; // Switch storage partition to User UID
+            DOM.headerLoginBtn.style.display = 'none';
+            DOM.userProfileDropdown.style.display = 'inline-block';
+            DOM.userEmailSpan.textContent = user.email;
+
+            // Retrieve cloud data matching this account
+            syncNotesFromFirebase();
+        } else {
+            // User is signed out, fall back to Device Client ID
+            clientId = localStorage.getItem('summarizeai_client_id') || 'guest';
+            DOM.headerLoginBtn.style.display = 'inline-block';
+            DOM.userProfileDropdown.style.display = 'none';
+            DOM.userEmailSpan.textContent = 'Account';
+
+            // Refresh from local storage
+            state.savedLibrary = JSON.parse(localStorage.getItem('student_summaries_lib') || '[]');
+            updateSavedLibraryUI();
+        }
+    });
+}
+

@@ -1716,3 +1716,61 @@ input:checked + .slider:before {
     gap: 10px;
     flex-wrap: wrap;
 }
+
+/* ==========================================================================
+   USER AUTHENTICATION & PROFILE DROPDOWN
+   ========================================================================== */
+
+.user-profile-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+#userEmailSpan {
+    max-width: 140px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.auth-modal-card {
+    max-width: 420px;
+    width: 100%;
+}
+
+.auth-toggle-hint {
+    margin-top: 14px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.auth-toggle-hint a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    margin-left: 4px;
+}
+
+.auth-toggle-hint a:hover {
+    text-decoration: underline;
+}
+
+#userDropdownMenu {
+    right: 0;
+    left: auto;
+    min-width: 180px;
+}
+
+.dropdown-menu.show {
+    display: block;
+    animation: dropdownFade 0.2s ease;
+}
+
+@keyframes dropdownFade {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
