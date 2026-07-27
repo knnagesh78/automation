@@ -315,14 +315,24 @@ function initEventListeners() {
 function initPwaInstallPrompt() {
     // Detect iOS devices (Safari does not fire beforeinstallprompt)
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isAndroid = /Android/.test(navigator.userAgent);
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
 
-    if (isIOS && !isStandalone) {
-        // Show iOS installation instructions popup
+    // Hide the install button by default — only show it when install is actually possible
+    DOM.headerInstallBtn.style.display = 'none';
+
+    if (isStandalone) {
+        // Already installed — hide everything
+        return;
+    }
+
+    if (isIOS) {
+        // iOS Safari does not fire beforeinstallprompt — show button for manual instructions
+        DOM.headerInstallBtn.style.display = 'inline-flex';
         setTimeout(() => {
             if (!sessionStorage.getItem('pwa_modal_dismissed')) {
                 DOM.pwaInstallModal.classList.add('show');
-                const desc = DOM.pwaInstallModal.querySelector('.modal-desc');
+                const desc = DOM.pwaInstallModal.querySelector('#pwaModalDesc');
                 if (desc) {
                     desc.innerHTML = 'To install on <strong>iPhone/iPad</strong>: Tap the <strong>Share <i class="fa-solid fa-share-nodes"></i></strong> button in Safari and select <strong>"Add to Home Screen <i class="fa-solid fa-square-plus"></i>"</strong>.';
                 }
@@ -336,8 +346,10 @@ function initPwaInstallPrompt() {
         e.preventDefault();
         state.deferredPrompt = e;
 
-        // Show header install button
+        // Show header install button only when browser supports it
         DOM.headerInstallBtn.style.display = 'inline-flex';
+        // Make sure install button is visible in modal
+        DOM.modalInstallBtn.style.display = '';
 
         // Auto-show install pop-up modal if not dismissed in this session
         if (!sessionStorage.getItem('pwa_modal_dismissed')) {
