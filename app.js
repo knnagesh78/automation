@@ -337,6 +337,14 @@ const DOM = {
     toastContainer: document.getElementById('toastContainer')
 };
 
+// --- Global Navigation Helper ---
+function navigateToPage(pageName) {
+    const navItem = document.querySelector(`.nav-item[data-page="${pageName}"]`);
+    if (navItem) {
+        navItem.click();
+    }
+}
+
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
     initEventListeners();
@@ -345,40 +353,80 @@ document.addEventListener('DOMContentLoaded', () => {
     syncNotesFromFirebase(); // Sync notes with Firebase database
     checkApiStatus();
     initPwaInstallPrompt();
+    initSidebarNavigation();
 });
+
+// --- Sidebar Navigation Routing ---
+function initSidebarNavigation() {
+    const navItems = document.querySelectorAll('.nav-item');
+    const activityPages = document.querySelectorAll('.activity-page');
+    const activePageTitle = document.getElementById('activePageTitle');
+    const activePageDesc = document.getElementById('activePageDesc');
+
+    const PAGE_INFO = {
+        summarizer: { title: "Summarizer", desc: "Condense notes, chapters & data into summaries" },
+        flashcards: { title: "Flashcards", desc: "Interactive active recall revision cards" },
+        audio: { title: "Audio Reader", desc: "Listen to summaries read aloud" },
+        library: { title: "Saved Library", desc: "Browse your saved note summaries" },
+        settings: { title: "Settings", desc: "Configure engines and API parameters" }
+    };
+
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const targetPage = item.dataset.page;
+            
+            // Toggle active nav class
+            navItems.forEach(n => n.classList.remove('active'));
+            item.classList.add('active');
+            
+            // Toggle active page section
+            activityPages.forEach(p => p.classList.remove('active'));
+            const activePageSection = document.getElementById(`page-${targetPage}`);
+            if (activePageSection) {
+                activePageSection.classList.add('active');
+            }
+            
+            // Update Page Header Info
+            if (activePageTitle && activePageDesc && PAGE_INFO[targetPage]) {
+                activePageTitle.textContent = PAGE_INFO[targetPage].title;
+                activePageDesc.textContent = PAGE_INFO[targetPage].desc;
+            }
+        });
+    });
+}
 
 // --- Event Listeners Setup ---
 function initEventListeners() {
     // PWA Modal Controls
-    DOM.closePwaModalBtn.addEventListener('click', () => DOM.pwaInstallModal.classList.remove('show'));
-    DOM.dismissPwaModalBtn.addEventListener('click', () => {
-        DOM.pwaInstallModal.classList.remove('show');
+    DOM.closePwaModalBtn?.addEventListener('click', () => DOM.pwaInstallModal?.classList.remove('show'));
+    DOM.dismissPwaModalBtn?.addEventListener('click', () => {
+        DOM.pwaInstallModal?.classList.remove('show');
         sessionStorage.setItem('pwa_modal_dismissed', 'true');
     });
 
-    DOM.modalInstallBtn.addEventListener('click', triggerPwaInstallation);
-    DOM.headerInstallBtn.addEventListener('click', () => {
-        DOM.pwaInstallModal.classList.add('show');
+    DOM.modalInstallBtn?.addEventListener('click', triggerPwaInstallation);
+    DOM.headerInstallBtn?.addEventListener('click', () => {
+        DOM.pwaInstallModal?.classList.add('show');
     });
 
     // Dropdown toggle
-    DOM.sampleDropdownBtn.addEventListener('click', (e) => {
+    DOM.sampleDropdownBtn?.addEventListener('click', (e) => {
         e.stopPropagation();
-        DOM.sampleDropdownMenu.classList.toggle('show');
+        DOM.sampleDropdownMenu?.classList.toggle('show');
     });
 
     document.addEventListener('click', () => {
-        DOM.sampleDropdownMenu.classList.remove('show');
+        DOM.sampleDropdownMenu?.classList.remove('show');
     });
 
-    // Modals
-    DOM.openLibraryBtn.addEventListener('click', () => DOM.libraryModal.classList.add('show'));
-    DOM.closeLibraryBtn.addEventListener('click', () => DOM.libraryModal.classList.remove('show'));
-    DOM.apiConfigBtn.addEventListener('click', () => DOM.apiModal.classList.add('show'));
-    DOM.closeApiBtn.addEventListener('click', () => DOM.apiModal.classList.remove('show'));
+    // Modals / Page redirection
+    DOM.openLibraryBtn?.addEventListener('click', () => navigateToPage('library'));
+    DOM.closeLibraryBtn?.addEventListener('click', () => navigateToPage('summarizer'));
+    DOM.apiConfigBtn?.addEventListener('click', () => navigateToPage('settings'));
+    DOM.closeApiBtn?.addEventListener('click', () => navigateToPage('summarizer'));
 
     // Authentication Event Listeners
-    DOM.headerLoginBtn.addEventListener('click', () => {
+    DOM.headerLoginBtn?.addEventListener('click', () => {
         showAuthModal(true);
     });
 
@@ -1177,7 +1225,9 @@ function renderLibraryList(filterText) {
                 <h4>${escapeHTML(item.title)}</h4>
                 <p>Saved on ${item.date} • ${item.paragraphs.length} paragraphs</p>
             </div>
-            <button class="btn-icon" onclick="deleteLibraryItem(${item.id}, event)" title="Delete"><i class="fa-solid fa-trash"></i></button>
+            <div class="library-item-actions">
+                <button class="btn btn-secondary btn-sm btn-icon" onclick="deleteLibraryItem(${item.id}, event)" title="Delete"><i class="fa-solid fa-trash"></i></button>
+            </div>
         `;
         div.addEventListener('click', () => {
             state.summaryResult.paragraphs = item.paragraphs;
@@ -1191,7 +1241,7 @@ function renderLibraryList(filterText) {
                 reductionPercent: 75,
                 timeSavedMins: 5
             });
-            DOM.libraryModal.classList.remove('show');
+            navigateToPage('summarizer');
             showToast(`Loaded saved note: ${item.title}`, 'info');
         });
         DOM.libraryList.appendChild(div);
@@ -1368,7 +1418,7 @@ function handleLogout() {
 // Monitor Authentication State
 if (auth) {
     auth.onAuthStateChanged((user) => {
-        const workspace = document.querySelector('.workspace-grid');
+        const workspace = document.querySelector('.main-workspace');
         if (user) {
             // User is signed in
             clientId = user.uid; // Switch storage partition to User UID

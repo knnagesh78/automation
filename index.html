@@ -32,579 +32,593 @@
         <div class="glow-orb orb-3"></div>
     </div>
 
-    <div class="app-container">
-        <!-- Top Navigation / Header -->
-        <header class="app-header">
-            <div class="brand">
+    <!-- Main Dashboard Layout -->
+    <div class="dashboard-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
                 <div class="brand-icon">
                     <i class="fa-solid fa-brain"></i>
                 </div>
                 <div class="brand-text">
-                    <h1>Summarize<span class="highlight">AI</span> <span class="badge-pro">STUDENT PRO</span></h1>
-                    <p>Condense massive notes, chapters & data into crisp 2-3 paragraph summaries</p>
+                    <h2>Summarize<span class="highlight">AI</span></h2>
+                    <span class="badge-pro">STUDENT PRO</span>
                 </div>
             </div>
-            <div class="header-actions">
-                <!-- Header PWA Install Button -->
-                <button class="btn btn-primary pwa-install-btn" id="headerInstallBtn">
-                    <i class="fa-solid fa-mobile-screen-button"></i> Install App
+            
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-page="summarizer">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Summarizer</span>
                 </button>
+                <button class="nav-item" data-page="flashcards">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span>Flashcards</span>
+                    <span class="nav-badge" id="flashcardSidebarBadge" style="display:none;">0</span>
+                </button>
+                <button class="nav-item" data-page="audio">
+                    <i class="fa-solid fa-volume-high"></i>
+                    <span>Audio Reader</span>
+                </button>
+                <button class="nav-item" data-page="library">
+                    <i class="fa-solid fa-bookmark"></i>
+                    <span>Saved Library</span>
+                    <span class="nav-badge" id="savedCount">0</span>
+                </button>
+                <button class="nav-item" data-page="settings">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Settings</span>
+                </button>
+            </nav>
 
-                <div class="sample-loader-dropdown">
-                    <button class="btn btn-secondary dropdown-trigger" id="sampleDropdownBtn">
-                        <i class="fa-solid fa-folder-open"></i> Load Preset Notes <i class="fa-solid fa-chevron-down"></i>
-                    </button>
-                    <div class="dropdown-menu" id="sampleDropdownMenu">
-                        <button class="dropdown-item" onclick="loadPreset('biology')">
-                            <i class="fa-solid fa-dna"></i> Biology: Cellular Respiration
-                        </button>
-                        <button class="dropdown-item" onclick="loadPreset('history')">
-                            <i class="fa-solid fa-landmark"></i> History: The Industrial Revolution
-                        </button>
-                        <button class="dropdown-item" onclick="loadPreset('cs')">
-                            <i class="fa-solid fa-code"></i> CS: Data Structures & Algorithms
-                        </button>
-                    </div>
-                </div>
-
-                <button class="btn btn-secondary" id="openLibraryBtn">
-                    <i class="fa-solid fa-bookmark"></i> Saved Library (<span id="savedCount">0</span>)
-                </button>
-                <button class="btn btn-secondary" id="apiConfigBtn" title="Configure AI API Key">
-                    <i class="fa-solid fa-key"></i> <span id="apiStatusBadge">Offline Engine</span>
-                </button>
-
-                <!-- Auth Buttons -->
-                <button class="btn btn-primary" id="headerLoginBtn">
-                    <i class="fa-solid fa-right-to-bracket"></i> Sign In
-                </button>
-                <div class="user-profile-dropdown" id="userProfileDropdown" style="display: none;">
-                    <button class="btn btn-secondary" id="userMenuBtn">
-                        <i class="fa-solid fa-user-circle"></i> <span id="userEmailSpan">Account</span> <i class="fa-solid fa-chevron-down"></i>
-                    </button>
-                    <div class="dropdown-menu" id="userDropdownMenu">
-                        <button class="dropdown-item" id="logoutBtn">
-                            <i class="fa-solid fa-right-from-bracket"></i> Sign Out
-                        </button>
-                    </div>
-                </div>
+            <div class="sidebar-footer">
+                <p class="dev-credit">By Nagesh • CME</p>
             </div>
-        </header>
+        </aside>
 
-        <!-- Main Workspace Grid -->
-        <main class="workspace-grid">
-            <!-- Left Column: Source Note Input -->
-            <section class="panel panel-input">
-                <div class="panel-header">
-                    <h2><i class="fa-solid fa-file-pen"></i> Source Notes & Data Input</h2>
-                    <button class="btn-text" id="clearTextBtn" title="Clear Text">
-                        <i class="fa-solid fa-trash-can"></i> Clear
-                    </button>
+        <!-- Main Workspace Area -->
+        <main class="main-workspace">
+            <!-- Top Header Bar -->
+            <header class="app-header">
+                <div class="header-title">
+                    <h1 id="activePageTitle">Summarizer</h1>
+                    <p id="activePageDesc">Condense notes, chapters & data into crisp summaries</p>
                 </div>
-
-                <!-- Drag & Drop Zone -->
-                <div class="drop-zone" id="dropZone">
-                    <input type="file" id="fileInput" accept=".txt,.pdf,.md,.docx,.doc" class="file-input">
-                    <div class="drop-zone-content">
-                        <div class="upload-icon">
-                            <i class="fa-solid fa-cloud-arrow-up"></i>
-                        </div>
-                        <p class="drop-title">Drag & drop your notes file here</p>
-                        <p class="drop-subtitle">Supports <span>.TXT</span>, <span>.PDF</span>, <span>.MD</span>, <span>.DOCX</span> documents</p>
-                    </div>
-                    <div class="file-preview-info" id="filePreviewInfo" style="display: none;">
-                        <i class="fa-solid fa-file-lines"></i>
-                        <span id="fileName">notes.txt</span>
-                        <span id="fileSize" class="file-size-badge">12 KB</span>
-                        <button class="btn-icon" id="removeFileBtn"><i class="fa-solid fa-xmark"></i></button>
-                    </div>
-                </div>
-
-                <!-- Text Area Input -->
-                <div class="textarea-wrapper">
-                    <textarea id="sourceText" placeholder="Paste your lecture notes, textbook chapters, research papers, or large raw data here..."></textarea>
-                    <div class="textarea-footer">
-                        <span class="stat-tag"><i class="fa-solid fa-font"></i> <strong id="inputWordCount">0</strong> words</span>
-                        <span class="stat-tag"><i class="fa-solid fa-text-height"></i> <strong id="inputCharCount">0</strong> chars</span>
-                        <span class="stat-tag"><i class="fa-solid fa-clock"></i> ~<strong id="inputReadTime">0</strong> min read</span>
-                    </div>
-                </div>
-
-                <!-- Controls & Summarization Options -->
-                <div class="control-card">
-                    <div class="control-row">
-                        <div class="control-group">
-                            <label><i class="fa-solid fa-compress"></i> Summary Length Target:</label>
-                            <div class="segmented-control" id="lengthSegmentedControl">
-                                <button class="segment-btn active" data-value="2-3">2-3 Paragraphs</button>
-                                <button class="segment-btn" data-value="1">1 Paragraph</button>
-                                <button class="segment-btn" data-value="4-5">4-5 Paragraphs</button>
-                            </div>
-                        </div>
-
-                        <div class="control-group">
-                            <label><i class="fa-solid fa-sliders"></i> Output Format:</label>
-                            <select id="outputFormatSelect" class="styled-select">
-                                <option value="paragraphs" selected>Structured Paragraphs</option>
-                                <option value="bullets">Key Bullet Points</option>
-                                <option value="flashcards">Study Q&A Flashcards</option>
-                                <option value="executive">Executive Summary Brief</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="control-row">
-                        <div class="control-group">
-                            <label><i class="fa-solid fa-microchip"></i> Engine Mode:</label>
-                            <div class="toggle-switch-wrapper">
-                                <label class="switch">
-                                    <input type="checkbox" id="engineToggle">
-                                    <span class="slider round"></span>
-                                </label>
-                                <span id="engineLabel">Offline Smart NLP</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Summarize Action Button -->
-                    <button class="btn btn-primary btn-generate" id="summarizeBtn">
-                        <span class="btn-text-wrap">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i> Summarize to 2-3 Paragraphs
-                        </span>
-                        <div class="spinner" id="btnSpinner" style="display: none;"></div>
-                    </button>
-                </div>
-            </section>
-
-            <!-- Right Column: Summary Output & Dashboard -->
-            <section class="panel panel-output">
-                <div class="panel-header">
-                    <h2><i class="fa-solid fa-square-poll-vertical"></i> Summary Dashboard</h2>
-                    <div class="output-tabs" id="outputTabs">
-                        <button class="tab-btn active" data-tab="summaryTab"><i class="fa-solid fa-align-left"></i> Summary</button>
-                        <button class="tab-btn" data-tab="bulletsTab"><i class="fa-solid fa-list-check"></i> Key Takeaways</button>
-                        <button class="tab-btn" data-tab="flashcardsTab"><i class="fa-solid fa-layer-group"></i> Flashcards (<span id="flashcardCountBadge">0</span>)</button>
-                        <button class="tab-btn" data-tab="audioTab"><i class="fa-solid fa-volume-high"></i> Audio Reader</button>
-                    </div>
-                </div>
-
-                <!-- Compression Stats Analytics Bar -->
-                <div class="metrics-bar" id="metricsBar">
-                    <div class="metric-card">
-                        <span class="metric-label">Original</span>
-                        <span class="metric-value" id="originalMetric">0 words</span>
-                    </div>
-                    <div class="metric-divider"><i class="fa-solid fa-arrow-right"></i></div>
-                    <div class="metric-card">
-                        <span class="metric-label">Summarized</span>
-                        <span class="metric-value highlight-green" id="summaryMetric">0 words</span>
-                    </div>
-                    <div class="metric-card metric-pill">
-                        <div class="progress-circle-small" id="reductionCircle">
-                            <span id="reductionPercent">0%</span>
-                        </div>
-                        <span class="metric-sublabel">Data Reduced</span>
-                    </div>
-                    <div class="metric-card">
-                        <span class="metric-label">Time Saved</span>
-                        <span class="metric-value highlight-purple" id="timeSavedMetric">0 mins</span>
-                    </div>
-                </div>
-
-                <!-- Tab Content 1: 2-3 Paragraph Summary View -->
-                <div class="tab-content active" id="summaryTab">
-                    <div class="output-box" id="outputSummaryBox">
-                        <div class="empty-state" id="emptyState">
-                            <div class="empty-icon"><i class="fa-solid fa-feather-pointed"></i></div>
-                            <h3>Ready to Condense Your Notes</h3>
-                            <p>Paste notes on the left or drag a file to generate a crisp 2 to 3 paragraph summary, bullet highlights, and study flashcards.</p>
-                        </div>
-                        <div class="summary-paragraphs-wrapper" id="summaryParagraphsWrapper" style="display: none;">
-                            <!-- Dynamic Paragraph Cards injected here -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab Content 2: Key Bullet Points -->
-                <div class="tab-content" id="bulletsTab">
-                    <div class="output-box">
-                        <ul class="bullets-list" id="bulletsList">
-                            <li class="empty-hint">Generate a summary first to extract key study takeaways.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Tab Content 3: Flashcards View -->
-                <div class="tab-content" id="flashcardsTab">
-                    <div class="flashcards-container">
-                        <div class="flashcard-deck-controls">
-                            <button class="btn btn-secondary btn-sm" id="prevCardBtn" disabled><i class="fa-solid fa-chevron-left"></i> Prev</button>
-                            <span class="deck-counter" id="deckCounter">Card 0 of 0</span>
-                            <button class="btn btn-secondary btn-sm" id="nextCardBtn" disabled>Next <i class="fa-solid fa-chevron-right"></i></button>
-                        </div>
-                        <div class="flashcard-scene" id="flashcardScene">
-                            <div class="flashcard" id="activeFlashcard">
-                                <div class="flashcard-face flashcard-front">
-                                    <span class="card-badge">QUESTION / TERM</span>
-                                    <p id="cardFrontText">Generate notes to unlock interactive flashcards.</p>
-                                    <span class="flip-hint"><i class="fa-solid fa-rotate"></i> Click card to flip</span>
-                                </div>
-                                <div class="flashcard-face flashcard-back">
-                                    <span class="card-badge badge-answer">EXPLANATION / ANSWER</span>
-                                    <p id="cardBackText">The key answer and breakdown will appear here.</p>
-                                    <span class="flip-hint"><i class="fa-solid fa-rotate"></i> Click card to flip back</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab Content 4: Audio Text-to-Speech Player -->
-                <div class="tab-content" id="audioTab">
-                    <div class="audio-player-card">
-                        <div class="audio-header">
-                            <div class="audio-waves">
-                                <span class="wave-bar"></span>
-                                <span class="wave-bar"></span>
-                                <span class="wave-bar"></span>
-                                <span class="wave-bar"></span>
-                                <span class="wave-bar"></span>
-                            </div>
-                            <h3>Listen to 2-3 Para Summary</h3>
-                        </div>
-
-                        <div class="audio-controls">
-                            <button class="btn btn-primary btn-round" id="playAudioBtn" title="Play / Pause Audio">
-                                <i class="fa-solid fa-play" id="playIcon"></i>
+                
+                <div class="header-actions">
+                    <!-- Preset Notes Loader Dropdown -->
+                    <div class="sample-loader-dropdown">
+                        <button class="btn btn-secondary dropdown-trigger" id="sampleDropdownBtn">
+                            <i class="fa-solid fa-folder-open"></i> Preset Notes <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu" id="sampleDropdownMenu">
+                            <button class="dropdown-item" onclick="loadPreset('biology')">
+                                <i class="fa-solid fa-dna"></i> Biology: Cellular Respiration
                             </button>
-                            <button class="btn btn-secondary btn-round" id="stopAudioBtn" title="Stop Audio">
-                                <i class="fa-solid fa-square"></i>
+                            <button class="dropdown-item" onclick="loadPreset('history')">
+                                <i class="fa-solid fa-landmark"></i> History: The Industrial Revolution
                             </button>
-
-                            <div class="audio-settings">
-                                <div class="audio-setting-item">
-                                    <label><i class="fa-solid fa-gauge-high"></i> Speed:</label>
-                                    <select id="voiceSpeed" class="styled-select select-sm">
-                                        <option value="0.8">0.8x</option>
-                                        <option value="1" selected>1.0x (Normal)</option>
-                                        <option value="1.25">1.25x (Fast)</option>
-                                        <option value="1.5">1.5x (Speed Read)</option>
-                                    </select>
-                                </div>
-                                <div class="audio-setting-item">
-                                    <label><i class="fa-solid fa-user-astronaut"></i> Voice:</label>
-                                    <select id="voiceSelect" class="styled-select select-sm">
-                                        <option value="">Default Browser Voice</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="audio-status-text" id="audioStatusText">Ready to read summary aloud.</div>
-                    </div>
-                </div>
-
-                <!-- Export & Action Toolbar -->
-                <div class="export-toolbar">
-                    <div class="toolbar-group">
-                        <button class="btn btn-secondary btn-sm" id="copySummaryBtn" title="Copy to Clipboard">
-                            <i class="fa-solid fa-copy"></i> Copy
-                        </button>
-                        <button class="btn btn-secondary btn-sm" id="saveNoteBtn" title="Save to Local Library">
-                            <i class="fa-solid fa-floppy-disk"></i> Save Note
-                        </button>
-                    </div>
-
-                    <div class="toolbar-group">
-                        <button class="btn btn-outline btn-sm" id="exportPdfBtn">
-                            <i class="fa-solid fa-file-pdf"></i> Export PDF
-                        </button>
-                        <button class="btn btn-outline btn-sm" id="exportMDBtn">
-                            <i class="fa-solid fa-file-code"></i> Export MD
-                        </button>
-                        <button class="btn btn-outline btn-sm" id="exportTxtBtn">
-                            <i class="fa-solid fa-file-lines"></i> Export TXT
-                        </button>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <!-- App Footer -->
-        <footer class="app-footer">
-            <div class="footer-content">
-                <p class="developer-credit">
-                    <i class="fa-solid fa-code"></i> Developed by <span class="dev-name">K.N. Nagesh</span> <span class="dev-badge"><i class="fa-solid fa-laptop-code"></i> CME</span> <span class="dev-badge"><i class="fa-solid fa-graduation-cap"></i> Diploma Student</span>
-                </p>
-                <p class="footer-subtext">SummarizeAI Pro &bull; Smart Offline Note & Data Summarizer</p>
-            </div>
-        </footer>
-
-        <!-- PWA Installation Pop-up Modal Window -->
-        <div class="modal-overlay" id="pwaInstallModal">
-            <div class="modal-card pwa-install-card">
-                <div class="modal-header">
-                    <h3><i class="fa-solid fa-mobile-screen-button"></i> Install SummarizeAI App Wizard</h3>
-                    <button class="btn-icon" id="closePwaModalBtn"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="modal-body pwa-modal-body">
-                    <div class="pwa-app-icon-wrapper">
-                        <img src="icons/icon.svg" alt="SummarizeAI App Icon" class="pwa-app-icon">
-                    </div>
-                    <h2>Install SummarizeAI App</h2>
-                    <p class="modal-desc" id="pwaModalDesc">
-                        Get 1-click access directly from your device home screen with <strong>100% offline note summarization</strong>, zero lag, and instant text-to-speech reading!
-                    </p>
-
-                    <div class="pwa-features-grid">
-                        <div class="pwa-feature-item">
-                            <i class="fa-solid fa-bolt"></i>
-                            <span>Instant Launch</span>
-                        </div>
-                        <div class="pwa-feature-item">
-                            <i class="fa-solid fa-wifi-slash"></i>
-                            <span>Works Offline</span>
-                        </div>
-                        <div class="pwa-feature-item">
-                            <i class="fa-solid fa-layer-group"></i>
-                            <span>Flashcards</span>
+                            <button class="dropdown-item" onclick="loadPreset('cs')">
+                                <i class="fa-solid fa-code"></i> CS: Data Structures & Algorithms
+                            </button>
                         </div>
                     </div>
 
-                    <div class="install-wizard-steps">
-                        <h4><i class="fa-solid fa-circle-info"></i> How to Install on Your Device:</h4>
-                        <ul>
-                            <li><strong>Chrome / Edge (Desktop):</strong> Click <strong>"Install App Now"</strong> below, or click the Install icon <i class="fa-solid fa-desktop"></i> in your browser address bar.</li>
-                            <li><strong>Android (Chrome):</strong> Tap <strong>"Install App Now"</strong> below or select <strong>Menu &rarr; Add to Home screen</strong>.</li>
-                            <li><strong>iOS (Safari):</strong> Tap <strong>Share <i class="fa-solid fa-share-nodes"></i></strong> &rarr; select <strong>"Add to Home Screen <i class="fa-solid fa-square-plus"></i>"</strong>.</li>
-                        </ul>
-                    </div>
-
-                    <div class="modal-footer-actions pwa-footer-actions">
-                        <button class="btn btn-secondary" id="dismissPwaModalBtn">Close Wizard</button>
-                        <button class="btn btn-primary btn-lg-install" id="modalInstallBtn">
-                            <i class="fa-solid fa-download"></i> Install App Now
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Saved Library Drawer Modal -->
-        <div class="modal-overlay" id="libraryModal">
-            <div class="modal-card">
-                <div class="modal-header">
-                    <h3><i class="fa-solid fa-box-archive"></i> Saved Study Summaries</h3>
-                    <button class="btn-icon" id="closeLibraryBtn"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="modal-body">
-                    <div class="library-search-bar">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="librarySearchInput" placeholder="Search saved notes by title or content...">
-                    </div>
-                    <div class="library-list" id="libraryList">
-                        <!-- Dynamic saved items injected here -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- API Config Modal -->
-        <div class="modal-overlay" id="apiModal">
-            <div class="modal-card">
-                <div class="modal-header">
-                    <h3><i class="fa-solid fa-sliders"></i> AI Summarization Engine Settings</h3>
-                    <button class="btn-icon" id="closeApiBtn"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="modal-body">
-                    <p class="modal-desc">
-                        By default, SummarizeAI uses a high-performance <strong>Built-in Offline NLP Engine</strong> (TextRank + TF-IDF) requiring 0 setup or internet connection.
-                    </p>
-                    <p class="modal-desc">
-                        Optionally enter a <strong>Gemini API Key</strong> below to unlock deep LLM abstractive summarization.
-                    </p>
-                    <div class="form-group">
-                        <label for="geminiApiKey">Google Gemini API Key:</label>
-                        <input type="password" id="geminiApiKey" placeholder="AIzaSy..." class="styled-input">
-                        <small class="help-text">Keys are stored locally in your browser session only.</small>
-                    </div>
-                    <div class="modal-footer-actions">
-                        <button class="btn btn-secondary" id="clearApiKeyBtn">Clear Key</button>
-                        <button class="btn btn-primary" id="saveApiKeyBtn">Save Settings</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ====== UPDATE AVAILABLE BANNER (slides in from top) ====== -->
-        <div class="update-banner" id="updateBanner">
-            <div class="update-banner-inner">
-                <div class="update-banner-left">
-                    <span class="update-pulse-dot"></span>
-                    <i class="fa-solid fa-arrows-rotate update-banner-icon"></i>
-                    <div class="update-banner-text">
-                        <strong>New Update Available!</strong>
-                        <span>A fresh version of SummarizeAI is ready to install.</span>
-                    </div>
-                </div>
-                <div class="update-banner-actions">
-                    <button class="btn btn-secondary btn-sm" id="updateLaterBtn">Later</button>
-                    <button class="btn btn-primary btn-sm" id="updateShowWizardBtn">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> See What's New
+                    <!-- PWA Installer -->
+                    <button class="btn btn-primary pwa-install-btn" id="headerInstallBtn">
+                        <i class="fa-solid fa-mobile-screen-button"></i> Install App
                     </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- ====== UPDATE WIZARD MODAL ====== -->
-        <div class="modal-overlay" id="updateWizardModal">
-            <div class="modal-card update-wizard-card">
-                <div class="modal-header update-wizard-header">
-                    <div class="update-wizard-icon-wrap">
-                        <i class="fa-solid fa-circle-up"></i>
-                    </div>
-                    <div>
-                        <h3>SummarizeAI Update Ready</h3>
-                        <span class="update-version-badge">v1.2.0 — Available Now</span>
-                    </div>
-                    <button class="btn-icon" id="closeUpdateWizardBtn"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="modal-body">
-
-                    <!-- Progress Steps -->
-                    <div class="update-wizard-steps">
-                        <div class="update-step active" id="wStep1">
-                            <div class="update-step-dot">1</div>
-                            <span>What's New</span>
-                        </div>
-                        <div class="update-step-line"></div>
-                        <div class="update-step" id="wStep2">
-                            <div class="update-step-dot">2</div>
-                            <span>Review</span>
-                        </div>
-                        <div class="update-step-line"></div>
-                        <div class="update-step" id="wStep3">
-                            <div class="update-step-dot">3</div>
-                            <span>Update</span>
-                        </div>
-                    </div>
-
-                    <!-- Step 1: Changelog -->
-                    <div class="update-wizard-page" id="wPage1">
-                        <h4 class="update-page-title"><i class="fa-solid fa-sparkles"></i> What's New in v1.2.0</h4>
-                        <ul class="update-changelog-list">
-                            <li class="update-log-item update-log-new">
-                                <i class="fa-solid fa-plus-circle"></i>
-                                <div><strong>New App Icon</strong> — Fresh, redesigned icon now appears on your home screen.</div>
-                            </li>
-                            <li class="update-log-item update-log-improve">
-                                <i class="fa-solid fa-bolt"></i>
-                                <div><strong>Faster Summarization</strong> — Improved NLP scoring for more accurate bullet points.</div>
-                            </li>
-                            <li class="update-log-item update-log-fix">
-                                <i class="fa-solid fa-wrench"></i>
-                                <div><strong>Bug Fixes</strong> — Fixed audio reader voice selection on Android Chrome.</div>
-                            </li>
-                            <li class="update-log-item update-log-improve">
-                                <i class="fa-solid fa-mobile-screen"></i>
-                                <div><strong>Better Mobile Layout</strong> — Control panel now stacks cleanly on small screens.</div>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Step 2: Review notice -->
-                    <div class="update-wizard-page" id="wPage2" style="display:none;">
-                        <h4 class="update-page-title"><i class="fa-solid fa-circle-info"></i> Before You Update</h4>
-                        <div class="update-review-box">
-                            <div class="update-review-item">
-                                <i class="fa-solid fa-floppy-disk"></i>
-                                <div>
-                                    <strong>Your saved notes are safe</strong>
-                                    <p>All summaries in your library are stored in local storage and will not be cleared.</p>
-                                </div>
-                            </div>
-                            <div class="update-review-item">
-                                <i class="fa-solid fa-wifi-slash"></i>
-                                <div>
-                                    <strong>Works offline after update</strong>
-                                    <p>The update will be cached for full offline use immediately after reloading.</p>
-                                </div>
-                            </div>
-                            <div class="update-review-item">
-                                <i class="fa-solid fa-clock-rotate-left"></i>
-                                <div>
-                                    <strong>Takes only 2 seconds</strong>
-                                    <p>The app will reload once to apply the update. You'll be right back.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Step 3: Apply update -->
-                    <div class="update-wizard-page" id="wPage3" style="display:none;">
-                        <h4 class="update-page-title"><i class="fa-solid fa-rocket"></i> Apply Update Now</h4>
-                        <div class="update-apply-box">
-                            <div class="update-apply-icon-ring" id="updateApplyRing">
-                                <i class="fa-solid fa-arrows-rotate" id="updateApplyIcon"></i>
-                            </div>
-                            <p class="update-apply-desc" id="updateApplyDesc">
-                                Click <strong>Update Now</strong> below. The app will reload in 2 seconds with the new version, new icon, and all improvements applied.
-                            </p>
-                        </div>
-                    </div>
-
-                </div>
-                <!-- Wizard Navigation Footer -->
-                <div class="modal-footer-actions update-wizard-footer">
-                    <button class="btn btn-secondary" id="updateWizardBackBtn" style="display:none;">
-                        <i class="fa-solid fa-arrow-left"></i> Back
+                    <!-- Profile / Auth Actions -->
+                    <button class="btn btn-primary" id="headerLoginBtn">
+                        <i class="fa-solid fa-right-to-bracket"></i> Sign In
                     </button>
-                    <button class="btn btn-secondary" id="updateWizardSkipBtn">Skip Update</button>
-                    <button class="btn btn-primary" id="updateWizardNextBtn">
-                        Next <i class="fa-solid fa-arrow-right"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ====== USER AUTHENTICATION SIGN-IN MODAL ====== -->
-        <div class="modal-overlay" id="authModal">
-            <div class="modal-card auth-modal-card">
-                <div class="modal-header">
-                    <h3><i class="fa-solid fa-user-shield"></i> SummarizeAI Student Account</h3>
-                </div>
-                <div class="modal-body">
-                    <p class="modal-desc">
-                        Please sign in to access your notes, summaries, and flashcards library.
-                    </p>
                     
-                    <form id="authForm">
-                        <div class="form-group">
-                            <label for="authEmail">Email Address:</label>
-                            <input type="email" id="authEmail" required placeholder="name@school.edu" class="styled-input">
+                    <div class="user-profile-dropdown" id="userProfileDropdown" style="display: none;">
+                        <button class="btn btn-secondary" id="userMenuBtn">
+                            <i class="fa-solid fa-user-circle"></i> <span id="userEmailSpan">Account</span> <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu" id="userDropdownMenu">
+                            <button class="dropdown-item" id="logoutBtn">
+                                <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+                            </button>
                         </div>
-                        <div class="form-group">
-                            <label for="authPassword">Password:</label>
-                            <input type="password" id="authPassword" required placeholder="••••••••" class="styled-input">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Activity Pages Content -->
+            <div class="page-content-wrapper">
+                
+                <!-- PAGE 1: SUMMARIZER -->
+                <section class="activity-page active" id="page-summarizer">
+                    <div class="workspace-grid">
+                        <!-- Left Panel: Input -->
+                        <div class="panel panel-input">
+                            <div class="panel-header">
+                                <h2><i class="fa-solid fa-file-pen"></i> Source Notes Input</h2>
+                                <button class="btn-text" id="clearTextBtn" title="Clear Text">
+                                    <i class="fa-solid fa-trash-can"></i> Clear
+                                </button>
+                            </div>
+
+                            <!-- Drag & Drop Zone -->
+                            <div class="drop-zone" id="dropZone">
+                                <input type="file" id="fileInput" accept=".txt,.pdf,.md,.docx,.doc" class="file-input">
+                                <div class="drop-zone-content">
+                                    <div class="upload-icon">
+                                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    </div>
+                                    <p class="drop-title">Drag & drop notes file</p>
+                                    <p class="drop-subtitle">Supports <span>TXT</span>, <span>PDF</span>, <span>MD</span>, <span>DOCX</span></p>
+                                </div>
+                                <div class="file-preview-info" id="filePreviewInfo" style="display: none;">
+                                    <i class="fa-solid fa-file-lines"></i>
+                                    <span id="fileName">notes.txt</span>
+                                    <span id="fileSize" class="file-size-badge">12 KB</span>
+                                    <button class="btn-icon" id="removeFileBtn"><i class="fa-solid fa-xmark"></i></button>
+                                </div>
+                            </div>
+
+                            <!-- Text Area Input -->
+                            <div class="textarea-wrapper">
+                                <textarea id="sourceText" placeholder="Paste your lecture notes, textbook chapters, research papers, or large raw data here..."></textarea>
+                                <div class="textarea-footer">
+                                    <span class="stat-tag"><i class="fa-solid fa-font"></i> <strong id="inputWordCount">0</strong> words</span>
+                                    <span class="stat-tag"><i class="fa-solid fa-text-height"></i> <strong id="inputCharCount">0</strong> chars</span>
+                                    <span class="stat-tag"><i class="fa-solid fa-clock"></i> ~<strong id="inputReadTime">0</strong> min read</span>
+                                </div>
+                            </div>
+
+                            <!-- Controls & Summarization Options -->
+                            <div class="control-card">
+                                <div class="control-row">
+                                    <div class="control-group">
+                                        <label><i class="fa-solid fa-compress"></i> Summary Length Target:</label>
+                                        <div class="segmented-control" id="lengthSegmentedControl">
+                                            <button class="segment-btn active" data-value="2-3">2-3 Paragraphs</button>
+                                            <button class="segment-btn" data-value="1">1 Paragraph</button>
+                                            <button class="segment-btn" data-value="4-5">4-5 Paragraphs</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="control-group">
+                                        <label><i class="fa-solid fa-sliders"></i> Output Format:</label>
+                                        <select id="outputFormatSelect" class="styled-select">
+                                            <option value="paragraphs" selected>Structured Paragraphs</option>
+                                            <option value="bullets">Key Bullet Points</option>
+                                            <option value="flashcards">Study Q&A Flashcards</option>
+                                            <option value="executive">Executive Summary Brief</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="control-row">
+                                    <div class="control-group">
+                                        <label><i class="fa-solid fa-microchip"></i> Engine Mode:</label>
+                                        <div class="toggle-switch-wrapper">
+                                            <label class="switch">
+                                                <input type="checkbox" id="engineToggle">
+                                                <span class="slider round"></span>
+                                            </label>
+                                            <span id="engineLabel">Offline Smart NLP</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button class="btn btn-primary btn-generate" id="summarizeBtn">
+                                    <span class="btn-text-wrap">
+                                        <i class="fa-solid fa-wand-magic-sparkles"></i> Summarize Notes
+                                    </span>
+                                    <div class="spinner" id="btnSpinner" style="display: none;"></div>
+                                </button>
+                            </div>
                         </div>
 
-                        <div class="auth-toggle-hint">
-                            <span id="authToggleText">Don't have a student account?</span> 
-                            <a href="#" id="toggleAuthModeBtn">Register here</a>
+                        <!-- Right Panel: Output & Dashboard -->
+                        <div class="panel panel-output">
+                            <div class="panel-header">
+                                <h2><i class="fa-solid fa-square-poll-vertical"></i> Summary Dashboard</h2>
+                                <!-- Hidden tabs to satisfy JS DOM queries, we route pages externally now -->
+                                <div class="output-tabs" id="outputTabs" style="display: none;">
+                                    <button class="tab-btn active" data-tab="summaryTab"><i class="fa-solid fa-align-left"></i> Summary</button>
+                                    <button class="tab-btn" data-tab="bulletsTab"><i class="fa-solid fa-list-check"></i> Key Takeaways</button>
+                                    <button class="tab-btn" data-tab="flashcardsTab"><i class="fa-solid fa-layer-group"></i> Flashcards (<span id="flashcardCountBadge">0</span>)</button>
+                                    <button class="tab-btn" data-tab="audioTab"><i class="fa-solid fa-volume-high"></i> Audio Reader</button>
+                                </div>
+                            </div>
+
+                            <!-- Compression Stats Analytics Bar -->
+                            <div class="metrics-bar" id="metricsBar">
+                                <div class="metric-card">
+                                    <span class="metric-label">Original</span>
+                                    <span class="metric-value" id="originalMetric">0 words</span>
+                                </div>
+                                <div class="metric-divider"><i class="fa-solid fa-arrow-right"></i></div>
+                                <div class="metric-card">
+                                    <span class="metric-label">Summarized</span>
+                                    <span class="metric-value highlight-green" id="summaryMetric">0 words</span>
+                                </div>
+                                <div class="metric-card metric-pill">
+                                    <div class="progress-circle-small" id="reductionCircle">
+                                        <span id="reductionPercent">0%</span>
+                                    </div>
+                                    <span class="metric-sublabel">Reduced</span>
+                                </div>
+                                <div class="metric-card">
+                                    <span class="metric-label">Time Saved</span>
+                                    <span class="metric-value highlight-purple" id="timeSavedMetric">0 mins</span>
+                                </div>
+                            </div>
+
+                            <!-- Summary Paragraphs -->
+                            <div class="tab-content active" id="summaryTab">
+                                <div class="output-box" id="outputSummaryBox">
+                                    <div class="empty-state" id="emptyState">
+                                        <div class="empty-icon"><i class="fa-solid fa-feather-pointed"></i></div>
+                                        <h3>Ready to Condense Your Notes</h3>
+                                        <p>Paste notes on the left or load a preset to generate a study summary.</p>
+                                    </div>
+                                    <div class="summary-paragraphs-wrapper" id="summaryParagraphsWrapper" style="display: none;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Takeaways (Hidden by default in summarizer page since they have separate tabs in JS, we render them together or handle cleanly) -->
+                            <div class="tab-content" id="bulletsTab" style="display: block; margin-top: 15px;">
+                                <div class="bullets-container-box">
+                                    <h3><i class="fa-solid fa-list-check"></i> Key Takeaways</h3>
+                                    <ul class="bullets-list" id="bulletsList">
+                                        <li class="empty-hint">Generate a summary to extract key takeaways.</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Export & Action Toolbar -->
+                            <div class="export-toolbar">
+                                <div class="toolbar-group">
+                                    <button class="btn btn-secondary btn-sm" id="copySummaryBtn" title="Copy to Clipboard">
+                                        <i class="fa-solid fa-copy"></i> Copy
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" id="saveNoteBtn" title="Save to Local Library">
+                                        <i class="fa-solid fa-floppy-disk"></i> Save Note
+                                    </button>
+                                </div>
+
+                                <div class="toolbar-group">
+                                    <button class="btn btn-outline btn-sm" id="exportPdfBtn">
+                                        <i class="fa-solid fa-file-pdf"></i> Export PDF
+                                    </button>
+                                    <button class="btn btn-outline btn-sm" id="exportMDBtn">
+                                        <i class="fa-solid fa-file-code"></i> Export MD
+                                    </button>
+                                    <button class="btn btn-outline btn-sm" id="exportTxtBtn">
+                                        <i class="fa-solid fa-file-lines"></i> Export TXT
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PAGE 2: FLASHCARDS -->
+                <section class="activity-page" id="page-flashcards">
+                    <div class="flashcards-activity-wrapper">
+                        <div class="activity-card-header">
+                            <h2><i class="fa-solid fa-layer-group"></i> Active Recall Flashcards</h2>
+                            <p>Test your understanding of the notes with interactive revision cards.</p>
                         </div>
                         
-                        <div class="modal-footer-actions">
-                            <button type="submit" class="btn btn-primary" id="submitAuthBtn" style="width: 100%; justify-content: center;">
-                                <i class="fa-solid fa-right-to-bracket"></i> <span id="authSubmitText">Sign In</span>
-                            </button>
+                        <div class="flashcards-container">
+                            <div class="flashcard-deck-controls">
+                                <button class="btn btn-secondary" id="prevCardBtn" disabled><i class="fa-solid fa-chevron-left"></i> Prev</button>
+                                <span class="deck-counter" id="deckCounter">Card 0 of 0</span>
+                                <button class="btn btn-secondary" id="nextCardBtn" disabled>Next <i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                            
+                            <div class="flashcard-scene" id="flashcardScene">
+                                <div class="flashcard" id="activeFlashcard">
+                                    <div class="flashcard-face flashcard-front">
+                                        <span class="card-badge">QUESTION / TERM</span>
+                                        <p id="cardFrontText">Generate notes to unlock interactive flashcards.</p>
+                                        <span class="flip-hint"><i class="fa-solid fa-rotate"></i> Click card to flip</span>
+                                    </div>
+                                    <div class="flashcard-face flashcard-back">
+                                        <span class="card-badge badge-answer">EXPLANATION / ANSWER</span>
+                                        <p id="cardBackText">The key answer and breakdown will appear here.</p>
+                                        <span class="flip-hint"><i class="fa-solid fa-rotate"></i> Click card to flip back</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </form>
+                    </div>
+                </section>
+
+                <!-- PAGE 3: AUDIO READER -->
+                <section class="activity-page" id="page-audio">
+                    <div class="audio-activity-wrapper">
+                        <div class="activity-card-header">
+                            <h2><i class="fa-solid fa-volume-high"></i> Audio Reader</h2>
+                            <p>Listen to your note summaries read aloud. Great for multi-tasking.</p>
+                        </div>
+
+                        <div class="audio-player-card">
+                            <div class="audio-header">
+                                <div class="audio-waves">
+                                    <span class="wave-bar"></span>
+                                    <span class="wave-bar"></span>
+                                    <span class="wave-bar"></span>
+                                    <span class="wave-bar"></span>
+                                    <span class="wave-bar"></span>
+                                </div>
+                                <h3>Listen to Summary</h3>
+                            </div>
+
+                            <div class="audio-controls">
+                                <button class="btn btn-primary btn-round" id="playAudioBtn" title="Play / Pause Audio">
+                                    <i class="fa-solid fa-play" id="playIcon"></i>
+                                </button>
+                                <button class="btn btn-secondary btn-round" id="stopAudioBtn" title="Stop Audio">
+                                    <i class="fa-solid fa-square"></i>
+                                </button>
+
+                                <div class="audio-settings">
+                                    <div class="audio-setting-item">
+                                        <label><i class="fa-solid fa-gauge-high"></i> Speed:</label>
+                                        <select id="voiceSpeed" class="styled-select select-sm">
+                                            <option value="0.8">0.8x</option>
+                                            <option value="1" selected>1.0x (Normal)</option>
+                                            <option value="1.25">1.25x (Fast)</option>
+                                            <option value="1.5">1.5x (Speed Read)</option>
+                                        </select>
+                                    </div>
+                                    <div class="audio-setting-item">
+                                        <label><i class="fa-solid fa-user-astronaut"></i> Voice:</label>
+                                        <select id="voiceSelect" class="styled-select select-sm">
+                                            <option value="">Default Browser Voice</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="audio-status-text" id="audioStatusText">Ready to read summary aloud.</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PAGE 4: SAVED LIBRARY -->
+                <section class="activity-page" id="page-library">
+                    <div class="library-activity-wrapper">
+                        <div class="activity-card-header">
+                            <h2><i class="fa-solid fa-bookmark"></i> Saved Study Library</h2>
+                            <p>Access your stored summaries, flashcards, and notes locally or via cloud database.</p>
+                        </div>
+
+                        <div class="library-workspace">
+                            <div class="library-search-bar">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="librarySearchInput" placeholder="Search saved notes by title or content...">
+                            </div>
+                            
+                            <div class="library-grid-container" id="libraryList">
+                                <!-- Dynamic saved items injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PAGE 5: SETTINGS -->
+                <section class="activity-page" id="page-settings">
+                    <div class="settings-activity-wrapper">
+                        <div class="activity-card-header">
+                            <h2><i class="fa-solid fa-sliders"></i> Workspace Settings & Engines</h2>
+                            <p>Configure LLM settings, Offline Engines, and sync accounts.</p>
+                        </div>
+
+                        <div class="settings-grid">
+                            <!-- API config block -->
+                            <div class="settings-card">
+                                <h3><i class="fa-solid fa-key"></i> Google Gemini API</h3>
+                                <p class="card-desc">Enter your Gemini API key to activate deep abstractive summaries. Leave blank to run offline.</p>
+                                
+                                <div class="form-group">
+                                    <label for="geminiApiKey">Gemini API Key:</label>
+                                    <input type="password" id="geminiApiKey" placeholder="AIzaSy..." class="styled-input">
+                                    <small class="help-text">Saved locally inside the browser's safe storage.</small>
+                                </div>
+                                
+                                <div class="settings-actions">
+                                    <button class="btn btn-secondary" id="clearApiKeyBtn">Clear Key</button>
+                                    <button class="btn btn-primary" id="saveApiKeyBtn">Save API Key</button>
+                                </div>
+                            </div>
+
+                            <!-- Mode / Status config block -->
+                            <div class="settings-card">
+                                <h3><i class="fa-solid fa-circle-nodes"></i> Active Engine Mode</h3>
+                                <p class="card-desc">Currently running engine status indicator.</p>
+                                <div class="badge-status-container">
+                                    <span class="status-badge" id="apiStatusBadge">Offline Engine</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Hidden compatibility modals to avoid JS DOM crashes if elements are triggered -->
+    <div id="pwaInstallModal" style="display:none;"><button id="closePwaModalBtn"></button><button id="dismissPwaModalBtn"></button><button id="modalInstallBtn"></button></div>
+    <div id="libraryModal" style="display:none;"><button id="closeLibraryBtn"></button></div>
+    <div id="apiModal" style="display:none;"><button id="closeApiBtn"></button></div>
+
+    <!-- ====== UPDATE AVAILABLE BANNER (slides in from top) ====== -->
+    <div class="update-banner" id="updateBanner">
+        <div class="update-banner-inner">
+            <div class="update-banner-left">
+                <span class="update-pulse-dot"></span>
+                <i class="fa-solid fa-arrows-rotate update-banner-icon"></i>
+                <div class="update-banner-text">
+                    <strong>New Update Available!</strong>
+                    <span>A fresh version of SummarizeAI is ready.</span>
                 </div>
             </div>
+            <div class="update-banner-actions">
+                <button class="btn btn-secondary btn-sm" id="updateLaterBtn">Later</button>
+                <button class="btn btn-primary btn-sm" id="updateShowWizardBtn">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> See What's New
+                </button>
+            </div>
         </div>
-
-        <!-- Toast Notification Container -->
-        <div class="toast-container" id="toastContainer"></div>
     </div>
+
+    <!-- ====== UPDATE WIZARD MODAL ====== -->
+    <div class="modal-overlay" id="updateWizardModal">
+        <div class="modal-card update-wizard-card">
+            <div class="modal-header update-wizard-header">
+                <div class="update-wizard-icon-wrap">
+                    <i class="fa-solid fa-circle-up"></i>
+                </div>
+                <div>
+                    <h3>SummarizeAI Update Ready</h3>
+                    <span class="update-version-badge">v1.2.0 — Available Now</span>
+                </div>
+                <button class="btn-icon" id="closeUpdateWizardBtn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <!-- Progress Steps -->
+                <div class="update-wizard-steps">
+                    <div class="update-step active" id="wStep1">
+                        <div class="update-step-dot">1</div>
+                        <span>What's New</span>
+                    </div>
+                    <div class="update-step-line"></div>
+                    <div class="update-step" id="wStep2">
+                        <div class="update-step-dot">2</div>
+                        <span>Review</span>
+                    </div>
+                    <div class="update-step-line"></div>
+                    <div class="update-step" id="wStep3">
+                        <div class="update-step-dot">3</div>
+                        <span>Update</span>
+                    </div>
+                </div>
+
+                <!-- Step 1: Changelog -->
+                <div class="update-wizard-page" id="wPage1">
+                    <h4 class="update-page-title"><i class="fa-solid fa-sparkles"></i> What's New in v1.2.0</h4>
+                    <ul class="update-changelog-list">
+                        <li class="update-log-item update-log-new">
+                            <i class="fa-solid fa-plus-circle"></i>
+                            <div><strong>New App Icon</strong> — Fresh, redesigned icon now appears on your home screen.</div>
+                        </li>
+                        <li class="update-log-item update-log-improve">
+                            <i class="fa-solid fa-bolt"></i>
+                            <div><strong>Faster Summarization</strong> — Improved NLP scoring for more accurate bullet points.</div>
+                        </li>
+                        <li class="update-log-item update-log-fix">
+                            <i class="fa-solid fa-wrench"></i>
+                            <div><strong>Bug Fixes</strong> — Fixed audio reader voice selection on Android Chrome.</div>
+                        </li>
+                        <li class="update-log-item update-log-improve">
+                            <i class="fa-solid fa-mobile-screen"></i>
+                            <div><strong>Better Mobile Layout</strong> — Control panel now stacks cleanly on small screens.</div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Step 2: Review notice -->
+                <div class="update-wizard-page" id="wPage2" style="display:none;">
+                    <h4 class="update-page-title"><i class="fa-solid fa-circle-info"></i> Before You Update</h4>
+                    <div class="update-review-box">
+                        <div class="update-review-item">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            <div>
+                                <strong>Your saved notes are safe</strong>
+                                <p>All summaries in your library are stored in local storage and will not be cleared.</p>
+                            </div>
+                        </div>
+                        <div class="update-review-item">
+                            <i class="fa-solid fa-wifi-slash"></i>
+                            <div>
+                                <strong>Works offline after update</strong>
+                                <p>The update will be cached for full offline use immediately after reloading.</p>
+                            </div>
+                        </div>
+                        <div class="update-review-item">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                            <div>
+                                <strong>Takes only 2 seconds</strong>
+                                <p>The app will reload once to apply the update. You'll be right back.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Apply update -->
+                <div class="update-wizard-page" id="wPage3" style="display:none;">
+                    <h4 class="update-page-title"><i class="fa-solid fa-rocket"></i> Apply Update Now</h4>
+                    <div class="update-apply-box">
+                        <div class="update-apply-icon-ring" id="updateApplyRing">
+                            <i class="fa-solid fa-arrows-rotate" id="updateApplyIcon"></i>
+                        </div>
+                        <p class="update-apply-desc" id="updateApplyDesc">
+                            Click <strong>Update Now</strong> below. The app will reload in 2 seconds with the new version, new icon, and all improvements applied.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <!-- Wizard Navigation Footer -->
+            <div class="modal-footer-actions update-wizard-footer">
+                <button class="btn btn-secondary" id="updateWizardBackBtn" style="display:none;">
+                    <i class="fa-solid fa-arrow-left"></i> Back
+                </button>
+                <button class="btn btn-secondary" id="updateWizardSkipBtn">Skip Update</button>
+                <button class="btn btn-primary" id="updateWizardNextBtn">
+                    Next <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== USER AUTHENTICATION SIGN-IN MODAL ====== -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-card auth-modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-user-shield"></i> SummarizeAI Student Account</h3>
+            </div>
+            <div class="modal-body">
+                <p class="modal-desc">
+                    Please sign in to access your notes, summaries, and flashcards library.
+                </p>
+                
+                <form id="authForm">
+                    <div class="form-group">
+                        <label for="authEmail">Email Address:</label>
+                        <input type="email" id="authEmail" required placeholder="name@school.edu" class="styled-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="authPassword">Password:</label>
+                        <input type="password" id="authPassword" required placeholder="••••••••" class="styled-input">
+                    </div>
+
+                    <div class="auth-toggle-hint">
+                        <span id="authToggleText">Don't have a student account?</span> 
+                        <a href="#" id="toggleAuthModeBtn">Register here</a>
+                    </div>
+                    
+                    <div class="modal-footer-actions">
+                        <button type="submit" class="btn btn-primary" id="submitAuthBtn" style="width: 100%; justify-content: center;">
+                            <i class="fa-solid fa-right-to-bracket"></i> <span id="authSubmitText">Sign In</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toastContainer"></div>
 
     <!-- Firebase App and Database (Compat Version) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
