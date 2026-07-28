@@ -2,16 +2,16 @@
    SUMMARIZEAI PRO - SERVICE WORKER (OFFLINE PWA CAPABILITY)
    ========================================================================== */
 
-const CACHE_NAME = 'summarizeai-v1.7.0'; // ← bumped: forces cache refresh on all installed devices
+const CACHE_NAME = 'summarizeai-v1.8.0'; // ← bumped: forces cache refresh on all installed devices
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './styles.css',
   './app.js',
   './manifest.json',
-  './icons/icon.svg?v=1.7.0',
-  './icons/icon-192.png?v=1.7.0',
-  './icons/icon-512.png?v=1.7.0'
+  './icons/icon.svg?v=1.8.0',
+  './icons/icon-192.png?v=1.8.0',
+  './icons/icon-512.png?v=1.8.0'
 ];
 
 // Install Event - Cache Core App Shell

@@ -10,7 +10,7 @@ const firebaseConfig = {
   measurementId: "G-ZV2EN94EGL"
 };
 
-// Initialize Firebase using compat SDK safely
+// Initialize Firebase using compat SDK safely (Database resolves to Cloud Firestore)
 let database = null;
 let auth = null;
 let analytics = null;
@@ -18,10 +18,10 @@ let analytics = null;
 if (typeof firebase !== 'undefined') {
     try {
         firebase.initializeApp(firebaseConfig);
-        database = firebase.database();
+        database = firebase.firestore();
         auth = firebase.auth();
         analytics = firebase.analytics();
-        console.log('[Firebase] Successfully initialized.');
+        console.log('[Firebase] Successfully initialized with Cloud Firestore.');
     } catch (e) {
         console.error('[Firebase] Initialization error:', e);
     }
@@ -1179,35 +1179,37 @@ function saveSummaryToLibrary() {
     updateSavedLibraryUI();
     showToast('Note summary saved locally!', 'success');
 
-    // Sync to Firebase Realtime Database (Isolated under User UID)
+    // Sync to Cloud Firestore (Isolated under User UID document)
     if (database && clientId !== 'guest') {
-        database.ref('users/' + clientId + '/notes').set(state.savedLibrary)
-            .then(() => console.log('Successfully synced new note to Firebase cloud database.'))
-            .catch(err => console.warn('Could not sync to Firebase database (offline):', err));
+        database.collection('users').doc(clientId).set({ notes: state.savedLibrary })
+            .then(() => console.log('Successfully synced new note to Cloud Firestore.'))
+            .catch(err => console.warn('Could not sync to Cloud Firestore (offline):', err));
     }
 }
 
 // Fetch and sync notes from Firebase on startup
 function syncNotesFromFirebase() {
     if (!database || clientId === 'guest') return;
-    database.ref('users/' + clientId + '/notes').once('value')
-        .then(snapshot => {
-            const cloudNotes = snapshot.val();
-            if (cloudNotes && Array.isArray(cloudNotes)) {
-                // Merge cloud notes with local ones (preserving unique ids)
-                const localMap = new Map(state.savedLibrary.map(item => [item.id, item]));
-                cloudNotes.forEach(note => {
-                    if (note && note.id) {
-                        localMap.set(note.id, note);
-                    }
-                });
-                state.savedLibrary = Array.from(localMap.values()).sort((a, b) => b.id - a.id);
-                localStorage.setItem('student_summaries_lib_' + clientId, JSON.stringify(state.savedLibrary));
-                updateSavedLibraryUI();
-                console.log('Synchronized library with Firebase cloud database.');
+    database.collection('users').doc(clientId).get()
+        .then(doc => {
+            if (doc.exists) {
+                const cloudNotes = doc.data().notes;
+                if (cloudNotes && Array.isArray(cloudNotes)) {
+                    // Merge cloud notes with local ones (preserving unique ids)
+                    const localMap = new Map(state.savedLibrary.map(item => [item.id, item]));
+                    cloudNotes.forEach(note => {
+                        if (note && note.id) {
+                            localMap.set(note.id, note);
+                        }
+                    });
+                    state.savedLibrary = Array.from(localMap.values()).sort((a, b) => b.id - a.id);
+                    localStorage.setItem('student_summaries_lib_' + clientId, JSON.stringify(state.savedLibrary));
+                    updateSavedLibraryUI();
+                    console.log('Synchronized library with Cloud Firestore.');
+                }
             }
         })
-        .catch(err => console.warn('Firebase sync failed (using local storage fallback):', err));
+        .catch(err => console.warn('Cloud Firestore sync failed (using local storage fallback):', err));
 }
 
 function updateSavedLibraryUI() {
@@ -1265,11 +1267,11 @@ function deleteLibraryItem(id, e) {
     updateSavedLibraryUI();
     showToast('Saved note deleted.', 'info');
 
-    // Sync deletion to Firebase
+    // Sync deletion to Cloud Firestore
     if (database && clientId !== 'guest') {
-        database.ref('users/' + clientId + '/notes').set(state.savedLibrary)
-            .then(() => console.log('Successfully synced deletion to Firebase.'))
-            .catch(err => console.warn('Could not sync deletion to Firebase (offline):', err));
+        database.collection('users').doc(clientId).set({ notes: state.savedLibrary })
+            .then(() => console.log('Successfully synced deletion to Cloud Firestore.'))
+            .catch(err => console.warn('Could not sync deletion to Cloud Firestore (offline):', err));
     }
 }
 
