@@ -2012,3 +2012,119 @@ input:checked + .slider:before {
     }
 }
 
+/* ==========================================================================
+   Home Hub Layout & Welcome Banner
+   ========================================================================== */
+.welcome-banner-card {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.12) 100%);
+    border: 1px solid var(--border-highlight);
+    border-radius: var(--radius-lg);
+    padding: 28px 24px;
+    margin-bottom: 24px;
+    text-align: center;
+    box-shadow: var(--glass-shadow);
+}
+
+.welcome-banner-card h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #a5b4fc, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+}
+
+.welcome-banner-card p {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+}
+
+.hub-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 32px;
+}
+
+.hub-card {
+    background: var(--bg-panel);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--glass-shadow);
+}
+
+.hub-card:hover {
+    border-color: var(--accent-color, var(--primary));
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 12px rgba(99, 102, 241, 0.15);
+}
+
+.hub-card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: var(--accent-color, var(--primary));
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+
+.hub-card:hover .hub-card-icon {
+    background: var(--accent-color, var(--primary));
+    color: #fff;
+    box-shadow: 0 0 12px var(--accent-color, var(--primary));
+}
+
+.hub-card-info {
+    flex: 1;
+}
+
+.hub-card-info h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 4px;
+}
+
+.hub-card-info p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.hub-card-arrow {
+    font-size: 1.05rem;
+    color: var(--text-dim);
+    transition: var(--transition);
+}
+
+.hub-card:hover .hub-card-arrow {
+    color: var(--text-main);
+    transform: translateX(4px);
+}
+
+.page-back-nav {
+    margin-bottom: 16px;
+}
+
+.page-back-nav .btn {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+}
+

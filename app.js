@@ -364,6 +364,7 @@ function initSidebarNavigation() {
     const activePageDesc = document.getElementById('activePageDesc');
 
     const PAGE_INFO = {
+        home: { title: "Home", desc: "Welcome to your ultimate study workspace" },
         summarizer: { title: "Summarizer", desc: "Condense notes, chapters & data into summaries" },
         flashcards: { title: "Flashcards", desc: "Interactive active recall revision cards" },
         audio: { title: "Audio Reader", desc: "Listen to summaries read aloud" },
@@ -391,6 +392,15 @@ function initSidebarNavigation() {
                 activePageTitle.textContent = PAGE_INFO[targetPage].title;
                 activePageDesc.textContent = PAGE_INFO[targetPage].desc;
             }
+        });
+    });
+
+    // Hub Cards Action Links Routing
+    const hubCards = document.querySelectorAll('.hub-card');
+    hubCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const targetPage = card.dataset.target;
+            navigateToPage(targetPage);
         });
     });
 }
