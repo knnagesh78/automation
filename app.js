@@ -270,8 +270,6 @@ const DOM = {
     logoutBtn: document.getElementById('logoutBtn'),
     userEmailSpan: document.getElementById('userEmailSpan'),
     authModal: document.getElementById('authModal'),
-    closeAuthBtn: document.getElementById('closeAuthBtn'),
-    cancelAuthBtn: document.getElementById('cancelAuthBtn'),
     authForm: document.getElementById('authForm'),
     authEmail: document.getElementById('authEmail'),
     authPassword: document.getElementById('authPassword'),
@@ -382,14 +380,6 @@ function initEventListeners() {
     // Authentication Event Listeners
     DOM.headerLoginBtn.addEventListener('click', () => {
         showAuthModal(true);
-    });
-
-    DOM.closeAuthBtn.addEventListener('click', () => {
-        DOM.authModal.classList.remove('show');
-    });
-
-    DOM.cancelAuthBtn.addEventListener('click', () => {
-        DOM.authModal.classList.remove('show');
     });
 
     let isSignUpMode = false;
@@ -1378,21 +1368,38 @@ function handleLogout() {
 // Monitor Authentication State
 if (auth) {
     auth.onAuthStateChanged((user) => {
+        const workspace = document.querySelector('.workspace-grid');
         if (user) {
             // User is signed in
             clientId = user.uid; // Switch storage partition to User UID
             DOM.headerLoginBtn.style.display = 'none';
             DOM.userProfileDropdown.style.display = 'inline-block';
             DOM.userEmailSpan.textContent = user.email;
+            
+            // Unlock workspace
+            if (workspace) {
+                workspace.style.filter = 'none';
+                workspace.style.pointerEvents = 'auto';
+            }
+            showAuthModal(false);
 
             // Retrieve cloud data matching this account
             syncNotesFromFirebase();
         } else {
             // User is signed out, fall back to Device Client ID
             clientId = localStorage.getItem('summarizeai_client_id') || 'guest';
-            DOM.headerLoginBtn.style.display = 'inline-block';
+            DOM.headerLoginBtn.style.display = 'none'; // Hide header login button to prevent duplicates
             DOM.userProfileDropdown.style.display = 'none';
             DOM.userEmailSpan.textContent = 'Account';
+
+            // Lock workspace and blur it
+            if (workspace) {
+                workspace.style.filter = 'blur(10px)';
+                workspace.style.pointerEvents = 'none';
+            }
+            
+            // Force open Auth Modal
+            showAuthModal(true);
 
             // Refresh from local storage
             state.savedLibrary = JSON.parse(localStorage.getItem('student_summaries_lib') || '[]');
