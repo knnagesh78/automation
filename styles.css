@@ -2048,46 +2048,66 @@ input:checked + .slider:before {
 }
 
 .hub-card {
-    background: var(--bg-panel);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    padding: 20px;
+    padding: 24px;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 20px;
     cursor: pointer;
     position: relative;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: var(--glass-shadow);
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.hub-card[data-target="summarizer"] {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    box-shadow: 0 8px 24px rgba(79, 70, 229, 0.3);
+}
+
+.hub-card[data-target="flashcards"] {
+    background: linear-gradient(135deg, #8b5cf6 0%, #db2777 100%);
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+}
+
+.hub-card[data-target="audio"] {
+    background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
+    box-shadow: 0 8px 24px rgba(236, 72, 153, 0.3);
+}
+
+.hub-card[data-target="library"] {
+    background: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+    box-shadow: 0 8px 24px rgba(13, 148, 136, 0.3);
+}
+
+.hub-card[data-target="settings"] {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);
 }
 
 .hub-card:hover {
-    border-color: var(--accent-color, var(--primary));
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 12px rgba(99, 102, 241, 0.15);
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 255, 255, 0.2);
 }
 
 .hub-card-icon {
-    width: 48px;
-    height: 48px;
+    width: 56px;
+    height: 56px;
     border-radius: var(--radius-md);
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
-    color: var(--accent-color, var(--primary));
+    font-size: 24px;
+    color: #fff;
     transition: var(--transition);
     flex-shrink: 0;
 }
 
 .hub-card:hover .hub-card-icon {
-    background: var(--accent-color, var(--primary));
-    color: #fff;
-    box-shadow: 0 0 12px var(--accent-color, var(--primary));
+    transform: rotate(-10deg) scale(1.1);
+    background: rgba(255, 255, 255, 0.3);
 }
 
 .hub-card-info {
@@ -2096,27 +2116,28 @@ input:checked + .slider:before {
 
 .hub-card-info h3 {
     font-family: 'Outfit', sans-serif;
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--text-main);
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #fff;
     margin-bottom: 4px;
+    letter-spacing: -0.01em;
 }
 
 .hub-card-info p {
-    font-size: 0.8rem;
-    color: var(--text-muted);
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.88);
     line-height: 1.4;
 }
 
 .hub-card-arrow {
-    font-size: 1.05rem;
-    color: var(--text-dim);
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.7);
     transition: var(--transition);
 }
 
 .hub-card:hover .hub-card-arrow {
-    color: var(--text-main);
-    transform: translateX(4px);
+    color: #fff;
+    transform: translateX(6px);
 }
 
 .page-back-nav {
