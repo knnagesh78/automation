@@ -10,7 +10,7 @@ const firebaseConfig = {
   measurementId: "G-ZV2EN94EGL"
 };
 
-// Initialize Firebase using compat SDK safely (Database is disabled for local storage privacy)
+// Initialize Firebase using compat SDK safely
 let database = null;
 let auth = null;
 let analytics = null;
@@ -18,9 +18,10 @@ let analytics = null;
 if (typeof firebase !== 'undefined') {
     try {
         firebase.initializeApp(firebaseConfig);
+        database = firebase.database();
         auth = firebase.auth();
         analytics = firebase.analytics();
-        console.log('[Firebase] Successfully initialized (Auth only).');
+        console.log('[Firebase] Successfully initialized.');
     } catch (e) {
         console.error('[Firebase] Initialization error:', e);
     }
@@ -1177,12 +1178,36 @@ function saveSummaryToLibrary() {
     localStorage.setItem('student_summaries_lib_' + clientId, JSON.stringify(state.savedLibrary));
     updateSavedLibraryUI();
     showToast('Note summary saved locally!', 'success');
+
+    // Sync to Firebase Realtime Database (Isolated under User UID)
+    if (database && clientId !== 'guest') {
+        database.ref('users/' + clientId + '/notes').set(state.savedLibrary)
+            .then(() => console.log('Successfully synced new note to Firebase cloud database.'))
+            .catch(err => console.warn('Could not sync to Firebase database (offline):', err));
+    }
 }
 
-// Fetch and sync notes from Firebase on startup (Disabled for security & privacy)
+// Fetch and sync notes from Firebase on startup
 function syncNotesFromFirebase() {
-    // Relying 100% on isolated client-side localStorage
-    console.log('[Database] Running in secure local-only user storage mode.');
+    if (!database || clientId === 'guest') return;
+    database.ref('users/' + clientId + '/notes').once('value')
+        .then(snapshot => {
+            const cloudNotes = snapshot.val();
+            if (cloudNotes && Array.isArray(cloudNotes)) {
+                // Merge cloud notes with local ones (preserving unique ids)
+                const localMap = new Map(state.savedLibrary.map(item => [item.id, item]));
+                cloudNotes.forEach(note => {
+                    if (note && note.id) {
+                        localMap.set(note.id, note);
+                    }
+                });
+                state.savedLibrary = Array.from(localMap.values()).sort((a, b) => b.id - a.id);
+                localStorage.setItem('student_summaries_lib_' + clientId, JSON.stringify(state.savedLibrary));
+                updateSavedLibraryUI();
+                console.log('Synchronized library with Firebase cloud database.');
+            }
+        })
+        .catch(err => console.warn('Firebase sync failed (using local storage fallback):', err));
 }
 
 function updateSavedLibraryUI() {
@@ -1239,6 +1264,13 @@ function deleteLibraryItem(id, e) {
     localStorage.setItem('student_summaries_lib_' + clientId, JSON.stringify(state.savedLibrary));
     updateSavedLibraryUI();
     showToast('Saved note deleted.', 'info');
+
+    // Sync deletion to Firebase
+    if (database && clientId !== 'guest') {
+        database.ref('users/' + clientId + '/notes').set(state.savedLibrary)
+            .then(() => console.log('Successfully synced deletion to Firebase.'))
+            .catch(err => console.warn('Could not sync deletion to Firebase (offline):', err));
+    }
 }
 
 // Export Download Helpers
@@ -1452,6 +1484,9 @@ if (auth) {
             // Load user-isolated notes from local storage
             state.savedLibrary = JSON.parse(localStorage.getItem('student_summaries_lib_' + clientId) || '[]');
             updateSavedLibraryUI();
+            
+            // Sync with Firebase cloud database
+            syncNotesFromFirebase();
         } else {
             // User is signed out, fall back to Device Client ID
             clientId = localStorage.getItem('summarizeai_client_id') || 'guest';
