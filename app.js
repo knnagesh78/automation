@@ -1393,6 +1393,43 @@ function handleLogout() {
         });
 }
 
+// --- Clear Active Workspace Session ---
+function clearActiveWorkspace() {
+    if (DOM.sourceText) {
+        DOM.sourceText.value = '';
+    }
+    state.sourceText = '';
+    updateInputMetrics();
+    
+    state.summaryResult = {
+        paragraphs: [],
+        bullets: [],
+        flashcards: [],
+        originalWords: 0,
+        summaryWords: 0,
+        reductionPercent: 0,
+        timeSavedMins: 0
+    };
+    
+    if (DOM.emptyState) DOM.emptyState.style.display = 'flex';
+    if (DOM.summaryParagraphsWrapper) {
+        DOM.summaryParagraphsWrapper.style.display = 'none';
+        DOM.summaryParagraphsWrapper.innerHTML = '';
+    }
+    if (DOM.bulletsList) {
+        DOM.bulletsList.innerHTML = '<li class="empty-hint">Generate a summary first to extract key study takeaways.</li>';
+    }
+    if (DOM.flashcardCountBadge) DOM.flashcardCountBadge.textContent = '0';
+    if (DOM.cardFrontText) DOM.cardFrontText.textContent = "Generate notes to unlock interactive flashcards.";
+    if (DOM.cardBackText) DOM.cardBackText.textContent = "The key answer and breakdown will appear here.";
+    if (DOM.deckCounter) DOM.deckCounter.textContent = "Card 0 of 0";
+    
+    if (DOM.originalMetric) DOM.originalMetric.textContent = '0 words';
+    if (DOM.summaryMetric) DOM.summaryMetric.textContent = '0 words';
+    if (DOM.reductionPercent) DOM.reductionPercent.textContent = '0%';
+    if (DOM.timeSavedMetric) DOM.timeSavedMetric.textContent = '0 mins';
+}
+
 // Monitor Authentication State
 if (auth) {
     auth.onAuthStateChanged((user) => {
@@ -1400,6 +1437,7 @@ if (auth) {
         if (user) {
             // User is signed in
             clientId = user.uid; // Switch storage partition to User UID
+            clearActiveWorkspace(); // Clear previous session's active text/notes
             DOM.headerLoginBtn.style.display = 'none';
             DOM.userProfileDropdown.style.display = 'inline-block';
             DOM.userEmailSpan.textContent = user.email;
@@ -1417,6 +1455,7 @@ if (auth) {
         } else {
             // User is signed out, fall back to Device Client ID
             clientId = localStorage.getItem('summarizeai_client_id') || 'guest';
+            clearActiveWorkspace(); // Clear previous session's active text/notes
             DOM.headerLoginBtn.style.display = 'none'; // Hide header login button to prevent duplicates
             DOM.userProfileDropdown.style.display = 'none';
             DOM.userEmailSpan.textContent = 'Account';
